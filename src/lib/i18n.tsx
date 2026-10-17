@@ -14,6 +14,14 @@ import en from "@/locales/en.json";
 import nl from "@/locales/nl.json";
 import fr from "@/locales/fr.json";
 import de from "@/locales/de.json";
+import authNL from "@/locales/auth/nl.json";
+import authEN from "@/locales/auth/en.json";
+import authFR from "@/locales/auth/fr.json";
+import authDE from "@/locales/auth/de.json";
+import studioNL from "@/locales/studio/nl.json";
+import studioEN from "@/locales/studio/en.json";
+import studioFR from "@/locales/studio/fr.json";
+import studioDE from "@/locales/studio/de.json";
 
 export type Locale = "nl" | "en" | "fr" | "de";
 
@@ -39,10 +47,10 @@ export const COOKIE_KEY = "rout_lang";
 type TranslationBundle = Record<string, unknown>;
 
 const RESOURCES: Record<Locale, { translation: TranslationBundle }> = {
-  en: { translation: en as TranslationBundle },
-  nl: { translation: nl as TranslationBundle },
-  fr: { translation: fr as TranslationBundle },
-  de: { translation: de as TranslationBundle },
+  en: { translation: { ...(en as TranslationBundle), ...(authEN as TranslationBundle), ...(studioEN as TranslationBundle) } },
+  nl: { translation: { ...(nl as TranslationBundle), ...(authNL as TranslationBundle), ...(studioNL as TranslationBundle) } },
+  fr: { translation: { ...(fr as TranslationBundle), ...(authFR as TranslationBundle), ...(studioFR as TranslationBundle) } },
+  de: { translation: { ...(de as TranslationBundle), ...(authDE as TranslationBundle), ...(studioDE as TranslationBundle) } },
 };
 
 export function isLocale(value: unknown): value is Locale {
