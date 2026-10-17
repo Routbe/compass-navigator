@@ -12,7 +12,7 @@
 - [ ] Browser verification of Snapchat and profile previews
 - [x] Snapchat client credentials saved securely
 - [ ] Optional sign-in/email/storage/payment keys (Google, Brevo, Scaleway, Stripe) — waits on user
-- [ ] Hub: single "Component toevoegen", social tabs, new platforms, YouTube as normal component, remove Totaal bereik, Badges & diploma's folder
-- [ ] Social block: expandable settings, connect account, green verified mark, followers toggle
-- [ ] Workspace switcher only with other workspaces (always in console) + console onboarding tour
-- [ ] ROUT login redirect-URI error: validation fix + console mismatch helper (root cause needs a real example)
+- [x] Hub: single "Component toevoegen", social tabs, new platforms, YouTube as normal component, remove Totaal bereik, Badges & diploma's folder
+- [x] Social block: expandable settings, connect account, green verified mark, followers toggle
+- [x] Workspace switcher only with other workspaces (always in console) + console onboarding tour
+- [ ] ROUT login redirect-URI error: fixes done; root cause waits on a real failing example from the user
