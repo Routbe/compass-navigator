@@ -1,3 +1,5 @@
+import i18next from "i18next";
+import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
@@ -10,16 +12,16 @@ import { captureReferralFromUrl } from "@/lib/referral";
 export const Route = createFileRoute("/signup")({
   head: () => ({
     meta: [
-      { title: "Word lid van ROUT — soevereine digitale identiteit" },
+      { title: i18next.t("auth.meta.signup") },
       {
         name: "description",
         content:
-          "Claim je eigen ROUT-identiteit met stijlvolle QR-codes, korte links en een publiek profiel. Aanmelden duurt één minuut.",
+          i18next.t("auth.meta.signupDescription"),
       },
-      { property: "og:title", content: "Word lid van ROUT" },
+      { property: "og:title", content: i18next.t("auth.meta.signup") },
       {
         property: "og:description",
-        content: "Claim je soevereine digitale identiteit en QR-infrastructuur bij ROUT.",
+        content: i18next.t("auth.meta.signupDescription"),
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -29,6 +31,7 @@ export const Route = createFileRoute("/signup")({
 });
 
 function SignupLanding() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -39,7 +42,7 @@ function SignupLanding() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-3 bg-background px-6 text-center">
       <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" aria-hidden />
-      <h1 className="text-sm text-muted-foreground">Je uitnodiging wordt geopend…</h1>
+      <h1 className="text-sm text-muted-foreground">{t("auth.signup.loading")}</h1>
     </main>
   );
 }

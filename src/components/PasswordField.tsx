@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useId, useMemo, useState } from "react";
 import { Check, Eye, EyeOff } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -30,22 +31,22 @@ export function isPasswordCompliant(value: string) {
 
 const LEVEL_META = [
   { label: "", bar: "" },
-  { label: "Weak", bar: "bg-destructive" },
-  { label: "Medium", bar: "bg-amber-500" },
-  { label: "Strong", bar: "bg-emerald-500" },
+  { label: "auth.password.weak", bar: "bg-destructive" },
+  { label: "auth.password.medium", bar: "bg-amber-500" },
+  { label: "auth.password.strong", bar: "bg-emerald-500" },
 ] as const;
 
 const CHECKS: { key: keyof PasswordRules; label: string; hint: string }[] = [
-  { key: "length", label: "At least 8 characters", hint: "Use at least 8 characters" },
+  { key: "length", label: "auth.password.length", hint: "auth.password.length" },
   {
     key: "case",
-    label: "Contains uppercase & lowercase letters",
-    hint: "Mix uppercase and lowercase letters",
+    label: "auth.password.case",
+    hint: "auth.password.case",
   },
   {
     key: "digitOrSymbol",
-    label: "Contains a number or special character",
-    hint: "Add a number or symbol",
+    label: "auth.password.symbol",
+    hint: "auth.password.symbol",
   },
 ];
 
@@ -53,7 +54,7 @@ const CHECKS: { key: keyof PasswordRules; label: string; hint: string }[] = [
 export function PasswordField({
   value,
   onChange,
-  label = "Password",
+  label,
   required,
   minLength,
   showMeter = true,
@@ -66,6 +67,7 @@ export function PasswordField({
   showMeter?: boolean;
 }) {
   const [visible, setVisible] = useState(false);
+  const { t } = useTranslation();
   const id = useId();
   const { rules, level } = useMemo(() => scorePassword(value), [value]);
   const unmet = useMemo(() => CHECKS.filter((c) => !rules[c.key]), [rules]);
@@ -73,13 +75,13 @@ export function PasswordField({
     value.length === 0
       ? ""
       : unmet.length
-        ? unmet.map((c) => c.hint).join(" · ")
-        : "Great — your password meets all requirements.";
+        ? unmet.map((c) => t(c.hint)).join(" · ")
+        : t("auth.password.met");
 
   return (
     <div className="space-y-1">
       <Label htmlFor={id} className="text-sm">
-        {label}
+        {label ?? t("auth.password.label")}
       </Label>
       <div className="relative">
         <Input
@@ -97,7 +99,7 @@ export function PasswordField({
           type="button"
           data-testid="password-toggle"
           onClick={() => setVisible((v) => !v)}
-          aria-label={visible ? "Hide password" : "Show password"}
+          aria-label={visible ? t("auth.password.hide") : t("auth.password.show")}
           aria-pressed={visible}
           className="absolute right-1 top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
@@ -124,7 +126,7 @@ export function PasswordField({
               ))}
             </div>
             <span className="min-w-[3.5rem] font-mono text-[10px] uppercase tracking-wide text-muted-foreground">
-              {LEVEL_META[level].label}
+              {LEVEL_META[level].label ? t(LEVEL_META[level].label) : ""}
             </span>
           </div>
           <p
@@ -156,7 +158,7 @@ export function PasswordField({
                   ) : (
                     <span className="size-1.5 shrink-0 rounded-full bg-muted-foreground/50" />
                   )}
-                  {c.label}
+                  {t(c.label)}
                 </li>
               );
             })}

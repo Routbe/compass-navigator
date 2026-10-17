@@ -16,3 +16,6 @@
 - [x] Social block: expandable settings, connect account, green verified mark, followers toggle
 - [x] Workspace switcher only with other workspaces (always in console) + console onboarding tour
 - [ ] ROUT login redirect-URI error: fixes done; root cause waits on a real failing example from the user
+- [ ] i18n batch 2: auth flows — NL enterprise tone polish + EN/FR/DE
+- [ ] i18n batch 2: Studio/dashboard — NL enterprise tone polish + EN/FR/DE
+- [ ] AI bio polish & translate (profile_descriptions jsonb in Neon) + language switcher in app nav

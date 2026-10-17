@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import type { ProfileDisplayPrefs } from "@/lib/profile-display";
@@ -17,37 +18,35 @@ interface Props {
  * (/api/public/og/<handle>.png) op basis van profielnaam, bio en profielfoto.
  */
 export function ShareInspector({ prefs, onPrefChange, displayName, bio, handle }: Props) {
+  const { t } = useTranslation();
   const autoImage = handle ? `https://rout.be/api/public/og/${encodeURIComponent(handle)}.png` : null;
   const previewImage = prefs.ogImageUrl?.trim() || autoImage;
-  const autoTitle = `${displayName?.trim() || "Jouw profiel"}${handle ? ` (@${handle})` : ""} — ROUT`;
+  const autoTitle = `${displayName?.trim() || t("studio.share.profile")}${handle ? ` (@${handle})` : ""} — ROUT`;
   return (
         <section className="space-y-2">
-          <p className="text-xs font-medium">Social share inspecteur</p>
-          <p className="text-[11px] text-muted-foreground">
-            ROUT maakt automatisch een unieke preview-afbeelding en -tekst op basis van je profiel.
-            Vul hieronder eigen waarden in om die te overschrijven.
-          </p>
+          <p className="text-xs font-medium">{t("studio.share.title")}</p>
+          <p className="text-[11px] text-muted-foreground"> {t("studio.share.help")} </p>
           <Input
             id="coach-meta-title"
             value={prefs.metaTitle ?? ""}
             maxLength={70}
             placeholder={autoTitle}
-            aria-label="Meta titel"
+            aria-label={t("studio.share.metaTitle")}
             onChange={(e) => onPrefChange("metaTitle", e.target.value || null)}
             className="h-9 text-xs"
           />
           <Textarea
             value={prefs.metaDescription ?? ""}
             maxLength={200}
-            placeholder={bio?.trim() || "Automatisch uit je tagline en bio"}
-            aria-label="Meta omschrijving"
+            placeholder={bio?.trim() || t("studio.share.autoDescription")}
+            aria-label={t("studio.share.metaDescription")}
             onChange={(e) => onPrefChange("metaDescription", e.target.value || null)}
             className="min-h-16 text-xs"
           />
           <Input
             value={prefs.ogImageUrl ?? ""}
-            placeholder="Eigen afbeelding (https://…) — leeg = automatische ROUT-kaart"
-            aria-label="OpenGraph afbeelding"
+            placeholder={t("studio.share.imagePlaceholder")}
+            aria-label={t("studio.share.image")}
             spellCheck={false}
             onChange={(e) => onPrefChange("ogImageUrl", e.target.value || null)}
             className="h-9 text-xs"
@@ -68,10 +67,10 @@ export function ShareInspector({ prefs, onPrefChange, displayName, bio, handle }
                 {prefs.metaTitle || autoTitle}
               </p>
               <p className="line-clamp-2 text-[11px] text-muted-foreground">
-                {prefs.metaDescription || bio || "Voeg een omschrijving toe voor WhatsApp en LinkedIn."}
+                {prefs.metaDescription || bio || t("studio.share.descriptionHint")}
               </p>
               {!prefs.ogImageUrl && autoImage && (
-                <p className="text-[10px] text-muted-foreground">Afbeelding: automatisch gegenereerd</p>
+                <p className="text-[10px] text-muted-foreground">{t("studio.share.autoImage")}</p>
               )}
             </div>
           </div>

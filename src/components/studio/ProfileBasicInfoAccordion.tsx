@@ -1,3 +1,4 @@
+import { BioTranslator } from "./BioTranslator";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Check, Loader2, MapPin, Smile } from "lucide-react";
@@ -43,6 +44,7 @@ const EMOJI_QUICK_PICK = [
 ];
 
 interface Props {
+  variant?: "verified" | "alias";
   displayName: string;
   onDisplayNameChange: (value: string) => void;
   tagline: string;
@@ -80,6 +82,7 @@ async function gravatarUrl(email: string): Promise<string> {
  * naar de live preview; de bovenliggende studio bewaart met debounce.
  */
 export function ProfileBasicInfoAccordion({
+  variant = "verified",
   displayName,
   onDisplayNameChange,
   tagline,
@@ -255,6 +258,7 @@ export function ProfileBasicInfoAccordion({
                   className="input-field rounded-xl"
                   aria-label="Bio"
                 />
+                <BioTranslator text={tagline} variant={variant} />
                 <div className="flex flex-wrap items-center gap-1.5">
                   <button
                     type="button"

@@ -240,7 +240,7 @@ export async function readPublicProfile(rawHandle: string) {
   let rows: Row[];
   try {
     rows = (await sql`
-      select id, username, display_name, tagline, bio, avatar_url, favicon_url, theme, card_style,
+      select id, username, display_name, tagline, bio, profile_descriptions, avatar_url, favicon_url, theme, card_style,
              blocks, verified, verified_at, created_at, is_early_believer,
              status, is_suspended, is_banned, url_style, verified_legal_name,
              coalesce(show_total_reach, false) as show_total_reach,

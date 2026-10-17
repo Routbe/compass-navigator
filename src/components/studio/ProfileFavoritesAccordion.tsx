@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useRef, useState } from "react";
 import { GripVertical } from "lucide-react";
 import { AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -38,6 +39,7 @@ export function ProfileFavoritesAccordion({
   layout,
   onLayoutChange,
 }: Props) {
+  const { t } = useTranslation();
   const dragId = useRef<string | null>(null);
   const [dragging, setDragging] = useState<string | null>(null);
 
@@ -65,7 +67,7 @@ export function ProfileFavoritesAccordion({
     >
       <AccordionTrigger className="hover:no-underline">
         <span className="flex flex-1 items-center justify-between gap-3 pr-2">
-          <span className="text-base font-medium">⭐ Favorieten &amp; curatie</span>
+          <span className="text-base font-medium">{t("studio.favorites.title")}</span>
           <span className="rounded-full border border-border px-2 py-0.5 text-[10px] text-muted-foreground">
             {favorites.length}/{MAX_FAVORITES}
           </span>
@@ -73,7 +75,7 @@ export function ProfileFavoritesAccordion({
       </AccordionTrigger>
       <AccordionContent className="space-y-5 pb-5">
         <section className="space-y-2">
-          <p className="text-xs font-medium">Kaartindeling</p>
+          <p className="text-xs font-medium">{t("studio.favorites.layout")}</p>
           <div className="grid gap-2 sm:grid-cols-3">
             {FAVORITE_LAYOUTS.map((id) => (
               <button
@@ -96,7 +98,7 @@ export function ProfileFavoritesAccordion({
 
         {favorites.length > 1 && (
           <section className="space-y-2">
-            <p className="text-xs font-medium">Volgorde (sleep om te herschikken)</p>
+            <p className="text-xs font-medium">{t("studio.favorites.order")}</p>
             <ul className="space-y-1">
               {favorites.map((fav) => (
                 <li
@@ -116,7 +118,7 @@ export function ProfileFavoritesAccordion({
                 >
                   <GripVertical className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
                   <span className="truncate">
-                    {FAVORITE_KIND_EMOJI[fav.kind]} {fav.title || "Zonder titel"}
+                    {FAVORITE_KIND_EMOJI[fav.kind]} {fav.title || t("studio.common.untitled")}
                   </span>
                 </li>
               ))}
@@ -126,17 +128,17 @@ export function ProfileFavoritesAccordion({
 
         {favorites.length > 0 && (
           <section className="space-y-3">
-            <p className="text-xs font-medium">Badge &amp; gloed per kaart</p>
+            <p className="text-xs font-medium">{t("studio.favorites.badgeGlow")}</p>
             {favorites.map((fav) => (
               <div key={fav.id} className="space-y-2 rounded-xl border border-border p-3">
                 <p className="truncate text-xs font-medium">
-                  {FAVORITE_KIND_EMOJI[fav.kind]} {fav.title || "Zonder titel"}
+                  {FAVORITE_KIND_EMOJI[fav.kind]} {fav.title || t("studio.common.untitled")}
                 </p>
                 <Input
                   value={fav.badge ?? ""}
                   maxLength={24}
-                  placeholder="Badge, bv. 🔥 Populairst"
-                  aria-label="Badgetekst"
+                  placeholder={t("studio.favorites.badgePlaceholder")}
+                  aria-label={t("studio.favorites.badgeText")}
                   onChange={(e) => patch(fav.id, { badge: e.target.value || null })}
                   className="h-9 text-xs"
                 />
@@ -171,7 +173,7 @@ export function ProfileFavoritesAccordion({
                   ))}
                 </div>
                 <label className="flex items-center justify-between gap-3 text-xs">
-                  <span className="text-muted-foreground">Animerende gloedrand</span>
+                  <span className="text-muted-foreground">{t("studio.favorites.glow")}</span>
                   <Switch
                     checked={Boolean(fav.glow)}
                     onCheckedChange={(v) => patch(fav.id, { glow: v })}

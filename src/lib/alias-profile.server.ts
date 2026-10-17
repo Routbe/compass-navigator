@@ -207,7 +207,7 @@ export async function readPublicAliasProfile(rawHandle: string) {
   if (!handle) return null;
   await ensureAliasTable();
   const rows = (await sql`
-    select a.user_id as id, a.handle as username, a.display_name, a.tagline, a.bio,
+    select a.user_id as id, a.handle as username, a.display_name, a.tagline, a.bio, a.profile_descriptions,
            a.avatar_url, a.favicon_url, a.theme, a.card_style, a.blocks,
            a.display_prefs, a.created_at,
            coalesce(p.is_banned, false) as is_banned,

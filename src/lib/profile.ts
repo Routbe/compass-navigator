@@ -135,6 +135,7 @@ export interface ProfileRecord {
   is_influencer?: boolean;
   status?: string;
   bio?: string | null;
+  profile_descriptions?: Partial<Record<"nl" | "en" | "fr" | "de", string>>;
   is_early_believer?: boolean;
   show_email_publicly?: boolean;
   forwarding_email?: string | null;

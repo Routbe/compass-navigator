@@ -1,3 +1,4 @@
+import { LocaleDropdown } from "@/components/LocaleDropdown";
 import { socialHandleKey } from "@/lib/social-block-rules";
 import { useTranslation } from "react-i18next";
 import { ProfileYouTubeCard } from "@/components/profile/YouTubeCard";
@@ -219,7 +220,7 @@ export function ProfileView({
   /** Taalpil: auto-detect via de sitetaal, bezoeker mag zelf wisselen. */
   const bioLocales = availableBioLocales(prefs);
   const [bioLocale, setBioLocale] = useState<BioLocale | null>(null);
-  const shownBio = bioForLocale(prefs, profile.bio, bioLocale ?? locale ?? "nl");
+  const shownBio = profile.profile_descriptions?.[bioLocale ?? locale] || bioForLocale(prefs, profile.bio, bioLocale ?? locale ?? "nl");
   const aliasEmail =
     profile.show_email_publicly && earlyBeliever && profile.username
       ? `${profile.username}@rout.be`
@@ -777,6 +778,7 @@ export function ProfileView({
           >
             {wireframe ? tx("profile.inspectOn") : "</>"}
           </button>
+          <LocaleDropdown />
           {showWatermark && (
             <a
               href="/about?ref=watermark"

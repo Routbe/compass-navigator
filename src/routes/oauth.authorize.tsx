@@ -1,5 +1,5 @@
+import i18next from "i18next";
 import { useTranslation } from "react-i18next";
-import { registerRedirectTranslations } from "@/lib/oauth/redirect-translations";
 import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
@@ -59,16 +59,16 @@ export const Route = createFileRoute("/oauth/authorize")({
   }),
   head: () => ({
     meta: [
-      { title: "Toestemming geven — Login met ROUT" },
+      { title: i18next.t("auth.meta.consent") },
       {
         name: "description",
-        content: "Bekijk welke gegevens een app van je ROUT-account wil zien en kies zelf.",
+        content: i18next.t("auth.meta.consentDescription"),
       },
       { name: "robots", content: "noindex" },
-      { property: "og:title", content: "Toestemming geven — Login met ROUT" },
+      { property: "og:title", content: i18next.t("auth.meta.consent") },
       {
         property: "og:description",
-        content: "Bekijk welke gegevens een app van je ROUT-account wil zien en kies zelf.",
+        content: i18next.t("auth.meta.consentDescription"),
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -78,12 +78,12 @@ export const Route = createFileRoute("/oauth/authorize")({
 });
 
 const SCOPE_TEXT: Record<string, { icon: typeof User; text: string }> = {
-  openid: { icon: KeyRound, text: "Bevestigen dat jij het bent (een vast, uniek ROUT-ID)." },
-  profile: { icon: User, text: "Je openbare naam, handle en profielfoto." },
-  email: { icon: Mail, text: "Je e-mailadres en of het bevestigd is." },
+  openid: { icon: KeyRound, text: "auth.scope.openid" },
+  profile: { icon: User, text: "auth.scope.profile" },
+  email: { icon: Mail, text: "auth.scope.email" },
   linked_accounts: {
     icon: ShieldCheck,
-    text: "Welke accounts (bv. Google, GitHub) je aan ROUT koppelde, om dubbele accounts te voorkomen.",
+    text: "auth.scope.linked_accounts",
   },
 };
 
@@ -101,20 +101,8 @@ const PROVIDER_LABEL: Record<string, string> = {
   linkedin: "LinkedIn",
 };
 
-/** "je e-mail en je openbare profiel" — one plain sentence for the requested data. */
-function summarize(scopes: string[]): string {
-  const parts: string[] = [];
-  if (scopes.includes("email")) parts.push("je e-mail");
-  if (scopes.includes("profile")) parts.push("je openbare profiel");
-  if (scopes.includes("linked_accounts")) parts.push("je gekoppelde accounts");
-  if (parts.length === 0) return "Deze app vraagt enkel te bevestigen dat jij het bent.";
-  const last = parts.pop();
-  return `Deze app vraagt toegang tot ${parts.length ? `${parts.join(", ")} en ${last}` : last}.`;
-}
-
 function AuthorizePage() {
-  registerRedirectTranslations();
-  const { t } = useTranslation("oauthRedirect");
+  const { t } = useTranslation();
   const addRedirect = useServerFn(addOwnerRedirect);
   const [repairError, setRepairError] = useState(false);
   const search = Route.useSearch();
@@ -152,7 +140,7 @@ function AuthorizePage() {
   useEffect(() => {
     if (!isSilent || loading) return;
     if (!payload.clientId || !payload.redirectUri) {
-      setPrompt({ ok: false, error: "Deze aanvraag mist verplichte gegevens." });
+      setPrompt({ ok: false, error: t("auth.consent.missing") });
       return;
     }
     silent({ data: payload })
@@ -160,7 +148,7 @@ function AuthorizePage() {
         if ("redirectTo" in r) window.location.replace(r.redirectTo);
         else setPrompt({ ok: false, error: r.error });
       })
-      .catch(() => setPrompt({ ok: false, error: "De aanvraag kon niet gecontroleerd worden." }));
+      .catch(() => setPrompt({ ok: false, error: t("auth.consent.checkFailed") }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSilent, loading]);
 
@@ -173,16 +161,16 @@ function AuthorizePage() {
   useEffect(() => {
     if (!user || isSilent) return;
     if (search.response_type && search.response_type !== "code") {
-      setPrompt({ ok: false, error: "Alleen de veilige code-flow wordt ondersteund." });
+      setPrompt({ ok: false, error: t("auth.consent.codeFlow") });
       return;
     }
     if (!payload.clientId || !payload.redirectUri) {
-      setPrompt({ ok: false, error: "Deze aanvraag mist verplichte gegevens." });
+      setPrompt({ ok: false, error: t("auth.consent.missing") });
       return;
     }
     describe({ data: payload })
       .then(setPrompt)
-      .catch(() => setPrompt({ ok: false, error: "De aanvraag kon niet gecontroleerd worden." }));
+      .catch(() => setPrompt({ ok: false, error: t("auth.consent.checkFailed") }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, search.client_id, search.redirect_uri, search.scope, search.code_challenge]);
 
@@ -191,10 +179,10 @@ function AuthorizePage() {
     setCodeError(null);
     try {
       const r = await sendCode({ data: { clientId: payload.clientId } });
-      if (r.ok) setCodeSentTo(r.sentTo ?? "je e-mailadres");
-      else setCodeError(r.error ?? "De code kon niet verstuurd worden.");
+      if (r.ok) setCodeSentTo(r.sentTo ?? t("auth.consent.email"));
+      else setCodeError(r.error ?? t("auth.consent.sendFailed"));
     } catch {
-      setCodeError("De code kon niet verstuurd worden.");
+      setCodeError(t("auth.consent.sendFailed"));
     } finally {
       setBusy(false);
     }
@@ -202,7 +190,7 @@ function AuthorizePage() {
 
   async function confirmCode() {
     if (!/^\d{6}$/.test(code)) {
-      setCodeError("Vul de 6 cijfers in.");
+      setCodeError(t("auth.consent.six"));
       return;
     }
     setBusy(true);
@@ -212,7 +200,7 @@ function AuthorizePage() {
       if (r.ok) setStepUpDone(true);
       else setCodeError(r.error);
     } catch {
-      setCodeError("Controleren lukte niet. Probeer opnieuw.");
+      setCodeError(t("auth.consent.verifyFailed"));
     } finally {
       setBusy(false);
     }
@@ -233,12 +221,12 @@ function AuthorizePage() {
     try {
       const result = await decide({ data: { ...payload, allow, richIdentityOptIn: richOptIn } });
       if ("redirectTo" in result) window.location.href = result.redirectTo;
-      else if (result.error.startsWith("Bevestig")) {
+      else if (result.error.startsWith(t("auth.confirm"))) {
         setStepUpDone(false);
         setCodeError(result.error);
       } else setPrompt({ ok: false, error: result.error });
     } catch {
-      setPrompt({ ok: false, error: "Er ging iets mis. Probeer het opnieuw." });
+      setPrompt({ ok: false, error: t("auth.retry") });
     } finally {
       setBusy(false);
     }
@@ -249,7 +237,7 @@ function AuthorizePage() {
       <main className="dark flex min-h-screen items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-3 text-sm text-muted-foreground">
           <Loader2 className="h-5 w-5 animate-spin" />
-          <span>{!loading && !user ? "Even aanmelden bij ROUT…" : "Aanvraag controleren…"}</span>
+          <span>{!loading && !user ? t("auth.consent.signingIn") : t("auth.consent.checking")}</span>
         </div>
       </main>
     );
@@ -259,14 +247,14 @@ function AuthorizePage() {
     return (
       <main className="dark flex min-h-screen items-center justify-center bg-background p-6">
         <div className="w-full max-w-md rounded-3xl border border-border bg-card p-8 text-center shadow-2xl">
-          <h1 className="font-display text-xl text-foreground">Deze aanvraag klopt niet</h1>
+          <h1 className="font-display text-xl text-foreground">{t("auth.consent.invalid")}</h1>
           <p className="mt-2 text-sm text-muted-foreground">{prompt.error}</p>
           <p className="mt-4 text-xs text-muted-foreground">
-            We sturen je hierbij niet terug naar de app: dat zou onveilig zijn.
+            {t("auth.consent.noRedirect")}
           </p>
           {prompt.debug && (
             <div className="mt-6 space-y-3 break-all text-sm">
-              <p>{t("mismatch", { received: prompt.debug.received, expected: prompt.debug.expected.join(", ") })}</p>
+              <p>{t("auth.consent.mismatch", { received: prompt.debug.received, expected: prompt.debug.expected.join(", ") })}</p>
               <Button disabled={busy} onClick={async () => {
                 setBusy(true);
                 setRepairError(false);
@@ -275,8 +263,8 @@ function AuthorizePage() {
                   setPrompt(await describe({ data: payload }));
                 } catch { setRepairError(true); }
                 finally { setBusy(false); }
-              }}>{t("add")}</Button>
-              {repairError && <p role="alert">{t("failed")}</p>}
+              }}>{t("auth.consent.add")}</Button>
+              {repairError && <p role="alert">{t("auth.consent.failed")}</p>}
             </div>
           )}
         </div>
@@ -284,7 +272,7 @@ function AuthorizePage() {
     );
   }
 
-  const appName = prompt.app?.name ?? "deze app";
+  const appName = prompt.app?.name ?? t("auth.consent.app");
   const handle = prompt.account?.handle;
   const needsCode = Boolean(prompt.requiresStepUp) && !stepUpDone;
   const scopes = prompt.scopes ?? [];
@@ -316,14 +304,14 @@ function AuthorizePage() {
         </div>
 
         <h1 className="mt-6 text-center font-display text-2xl leading-tight">
-          Aanmelden bij {appName}
+          {t("auth.consent.title", { name: appName })}
         </h1>
-        <p className="mt-1 text-center text-sm text-muted-foreground">met je ROUT-identiteit</p>
+        <p className="mt-1 text-center text-sm text-muted-foreground">{t("auth.consent.identity")}</p>
 
         {/* Ingelogd als */}
         <div className="mt-6 rounded-2xl border border-border bg-background/60 p-4">
           <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-            Ingelogd als
+            {t("auth.consent.signedIn")}
           </p>
           <div className="mt-3 flex items-center gap-3">
             {prompt.account?.avatarUrl ? (
@@ -350,7 +338,7 @@ function AuthorizePage() {
           </div>
           {(prompt.linkedProviders?.length ?? 0) > 0 && (
             <div className="mt-3 flex flex-wrap items-center gap-1.5">
-              <span className="text-xs text-muted-foreground">Gekoppeld:</span>
+              <span className="text-xs text-muted-foreground">{t("auth.consent.linked")}</span>
               {prompt.linkedProviders!.map((p) => (
                 <span key={p} className="rounded-full border border-border px-2 py-0.5 text-xs capitalize">
                   {PROVIDER_LABEL[p] ?? p}
@@ -364,18 +352,17 @@ function AuthorizePage() {
             disabled={busy}
             className="mt-3 text-xs text-muted-foreground underline-offset-4 hover:underline"
           >
-            Ander account gebruiken
+            {t("auth.consent.switch")}
           </button>
         </div>
         {scopes.includes("linked_accounts") && (prompt.linkedProviders?.length ?? 0) > 0 && (
           <p className="mt-3 text-xs text-muted-foreground">
-            Had je bij {appName} al een account via{" "}
-            {prompt.linkedProviders!.map((p) => PROVIDER_LABEL[p] ?? p).join(", ")}? Dan kan {appName} het herkennen en koppelen in plaats van een dubbel account te maken.
+            {t("auth.consent.recognize", { name: appName, providers: prompt.linkedProviders!.map((p) => PROVIDER_LABEL[p] ?? p).join(", ") })}
           </p>
         )}
 
         {/* Transparantie */}
-        <p className="mt-6 text-sm">{summarize(scopes)}</p>
+        <p className="mt-6 text-sm">{t(scopes.some((scope) => scope !== "openid") ? "auth.consent.summary" : "auth.consent.identityOnly")}</p>
         <ul className="mt-3 space-y-2">
           {scopes.map((scope) => {
             const item = SCOPE_TEXT[scope];
@@ -383,7 +370,7 @@ function AuthorizePage() {
             return (
               <li key={scope} className="flex items-start gap-3 text-sm text-muted-foreground">
                 <Icon className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
-                <span>{item?.text ?? scope}</span>
+                <span>{item ? t(item.text) : scope}</span>
               </li>
             );
           })}
@@ -394,14 +381,14 @@ function AuthorizePage() {
             <Checkbox
               checked={richOptIn}
               onCheckedChange={(v) => setRichOptIn(v === true)}
-              aria-label="Openbare activiteit delen"
+              aria-label={t("auth.consent.share")}
             />
             <span>
               <span className="flex items-center gap-1.5 font-medium">
-                <Eye className="h-3.5 w-3.5" aria-hidden /> Openbare activiteit delen (optioneel)
+                <Eye className="h-3.5 w-3.5" aria-hidden /> {t("auth.consent.shareOptional")}
               </span>
               <span className="text-xs text-muted-foreground">
-                Badges en mijlpalen die al publiek op je profiel staan. Niets privé.
+                {t("auth.consent.shareBody")}
               </span>
             </span>
           </label>
@@ -411,14 +398,14 @@ function AuthorizePage() {
         {needsCode && (
           <div className="mt-6 rounded-2xl border border-border bg-background/60 p-4">
             <p className="flex items-center gap-2 text-sm font-medium">
-              <ShieldCheck className="h-4 w-4" aria-hidden /> Extra bevestiging vereist
+              <ShieldCheck className="h-4 w-4" aria-hidden /> {t("auth.consent.extra")}
             </p>
             <p className="mt-1 text-xs text-muted-foreground">
-              {appName} vraagt een extra controle. We sturen een eenmalige code van 6 cijfers.
+              {t("auth.consent.extraBody", { name: appName })}
             </p>
             {codeSentTo ? (
               <div className="mt-3 space-y-2">
-                <p className="text-xs text-muted-foreground">Code verstuurd naar {codeSentTo}.</p>
+                <p className="text-xs text-muted-foreground">{t("auth.consent.sent", { email: codeSentTo })}</p>
                 <div className="flex gap-2">
                   <Input
                     inputMode="numeric"
@@ -428,10 +415,10 @@ function AuthorizePage() {
                     value={code}
                     onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
                     className="font-mono tracking-[0.4em]"
-                    aria-label="Verificatiecode"
+                    aria-label={t("auth.ui.code.label")}
                   />
                   <Button onClick={confirmCode} disabled={busy}>
-                    {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Bevestig"}
+                    {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : t("auth.confirm")}
                   </Button>
                 </div>
                 <button
@@ -440,12 +427,12 @@ function AuthorizePage() {
                   className="text-xs text-muted-foreground underline"
                   disabled={busy}
                 >
-                  Nieuwe code sturen
+                  {t("auth.code.resend")}
                 </button>
               </div>
             ) : (
               <Button variant="outline" className="mt-3 w-full" onClick={requestCode} disabled={busy}>
-                <Mail className="h-4 w-4" aria-hidden /> Stuur code per e-mail
+                <Mail className="h-4 w-4" aria-hidden /> {t("auth.code.send")}
               </Button>
             )}
             {codeError && <p className="mt-2 text-xs text-destructive">{codeError}</p>}
@@ -453,7 +440,7 @@ function AuthorizePage() {
         )}
         {prompt.requiresStepUp && stepUpDone && (
           <p className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
-            <Check className="h-3.5 w-3.5" aria-hidden /> Identiteit bevestigd.
+            <Check className="h-3.5 w-3.5" aria-hidden /> {t("auth.consent.verified")}
           </p>
         )}
 
@@ -462,7 +449,7 @@ function AuthorizePage() {
           disabled={busy || needsCode}
           onClick={() => choose(true)}
         >
-          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Autoriseren"}
+          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : t("auth.consent.allow")}
         </Button>
         <Button
           variant="outline"
@@ -470,19 +457,19 @@ function AuthorizePage() {
           disabled={busy}
           onClick={() => choose(false)}
         >
-          Weigeren
+          {t("auth.consent.deny")}
         </Button>
 
         <p className="mt-4 text-center text-xs text-muted-foreground">
           {prompt.app?.privacyUrl && (
             <a href={prompt.app.privacyUrl} className="underline" rel="noreferrer noopener">
-              Privacybeleid
+              {t("auth.consent.privacy")}
             </a>
           )}
           {prompt.app?.privacyUrl && prompt.app?.termsUrl ? " · " : ""}
           {prompt.app?.termsUrl && (
             <a href={prompt.app.termsUrl} className="underline" rel="noreferrer noopener">
-              Gebruiksvoorwaarden
+              {t("auth.consent.terms")}
             </a>
           )}
         </p>

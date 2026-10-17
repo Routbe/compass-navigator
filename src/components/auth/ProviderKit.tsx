@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -82,6 +83,7 @@ export function FediverseDialog({
   next?: string;
 }) {
   const [value, setValue] = useState("");
+  const { t } = useTranslation();
   const [busy, setBusy] = useState(false);
   const [remote, setRemote] = useState<string[]>([]);
 
@@ -108,7 +110,7 @@ export function FediverseDialog({
     if (provider === "bluesky") {
       const handle = normalizeBlueskyHandle(value);
       if (!handle) {
-        toast.error("Geef je volledige Bluesky-naam op, bijvoorbeeld jona.bsky.social.");
+        toast.error(t("auth.fedi.blueskyError"));
         return;
       }
       setBusy(true);
@@ -116,7 +118,7 @@ export function FediverseDialog({
     } else if (provider === "mastodon") {
       const instance = normalizeInstance(value);
       if (!instance) {
-        toast.error("Geef de server op waar je account staat, bijvoorbeeld mastodon.social.");
+        toast.error(t("auth.fedi.serverError"));
         return;
       }
       setBusy(true);
@@ -134,7 +136,7 @@ export function FediverseDialog({
             {isBluesky ? "Bluesky" : "Mastodon / Fediverse"}
           </DialogTitle>
           <DialogDescription>
-            {isBluesky ? "Wat is je Bluesky-naam?" : "Op welke server staat je account?"}
+            {isBluesky ? t("auth.fedi.blueskyPrompt") : t("auth.fedi.serverPrompt")}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={submit} className="space-y-2">
@@ -144,12 +146,12 @@ export function FediverseDialog({
               value={value}
               onChange={(e) => setValue(e.target.value)}
               placeholder={isBluesky ? "jona.bsky.social" : "mastodon.social"}
-              aria-label={isBluesky ? "Bluesky-naam" : "Fediverse-server"}
+              aria-label={isBluesky ? t("auth.fedi.handle") : t("auth.fedi.server")}
               autoComplete={isBluesky ? "username" : "off"}
               className="h-10 rounded-lg"
             />
             <Button type="submit" className="h-10 rounded-lg" disabled={busy}>
-              {busy ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : "Verder"}
+              {busy ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : t("auth.continue")}
             </Button>
           </div>
           <div className="flex flex-wrap gap-1.5">
@@ -167,7 +169,7 @@ export function FediverseDialog({
           </div>
           {isBluesky && value && !value.includes(".") && (
             <p className="text-[11px] text-muted-foreground">
-              Wordt: <strong>{normalizeBlueskyHandle(value)}</strong>
+              {t("auth.fedi.preview")} <strong>{normalizeBlueskyHandle(value)}</strong>
             </p>
           )}
         </form>
