@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { BrandLoader } from "@/components/BrandLoader";
 import { useEffect, useState } from "react";
 import { useNavigate } from "@/lib/router-compat";
@@ -14,6 +15,7 @@ import { VerificationPanel } from "@/components/dashboard/VerificationPanel";
 
 /** /studio — the dedicated Profile Hub (link-in-bio) workspace. */
 export default function Studio() {
+  const { t } = useTranslation();
   const { user, loading } = useAuth();
   const nav = useNavigate();
   // Privacy Alias is the default; the verified profile is a premium tab.
@@ -33,21 +35,21 @@ export default function Studio() {
 
   const tabs = [
     { id: "alias" as ProfileVariant, label: "Privacy Alias", hint: "rout.be/u/handle", Icon: Sparkles, locked: false },
-    { id: "verified" as ProfileVariant, label: "Geverifieerd profiel", hint: "rout.be/handle", Icon: BadgeCheck, locked: !unlocked },
+    { id: "verified" as ProfileVariant, label: t("studio.profile.verified"), hint: "rout.be/handle", Icon: BadgeCheck, locked: !unlocked },
   ];
 
   return (
     <AppLayout
       width="wide"
-      title="Profile Hub Studio"
-      description="Your sovereign link-in-bio: components, design, subdomain and verification."
+      title={t("studio.page.title")}
+      description={t("studio.page.description")}
       crumbs={[{ label: "Studio" }]}
       trustBadges
     >
       {loading || !user ? (
         <div className="flex min-h-[40vh] items-center justify-center">
           <div className="relative h-24 w-24">
-            <BrandLoader label="Studio laden…" />
+            <BrandLoader label={t("studio.studio.loading")} />
           </div>
         </div>
       ) : (
@@ -71,14 +73,14 @@ export default function Studio() {
                   <span className="font-medium">{label}</span>
                   <span className="text-xs opacity-70">{hint}</span>
                 </span>
-                {locked && <Lock className="ml-auto h-3.5 w-3.5 opacity-70" aria-label="Vergrendeld" />}
+                {locked && <Lock className="ml-auto h-3.5 w-3.5 opacity-70" aria-label={t("studio.common.locked")} />}
               </button>
             ))}
           </div>
           <ErrorBoundary label="Profile Studio" inline>
             {variant === "verified" && !unlocked ? (
               state.isLoading ? (
-                <p className="text-sm text-muted-foreground">Laden…</p>
+                <p className="text-sm text-muted-foreground">{t("studio.common.loading")}</p>
               ) : (
                 <LockedVerifiedTab />
               )
@@ -93,13 +95,14 @@ export default function Studio() {
 }
 
 function LockedVerifiedTab() {
+  const { t } = useTranslation();
   return (
     <div className="mx-auto w-full max-w-2xl space-y-6 py-6">
       <div className="text-center">
         <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-border bg-muted">
           <Lock className="h-5 w-5" aria-hidden />
         </div>
-        <h2 className="font-display text-2xl tracking-tight">Geverifieerd profiel</h2>
+        <h2 className="font-display text-2xl tracking-tight">{t("studio.profile.verified")}</h2>
         <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
           Je officiële pagina op rout.be/handle, met badge. Verifieer je identiteit om deze editor te ontgrendelen.
         </p>

@@ -9,19 +9,19 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PasswordField } from "@/components/PasswordField";
 import { useAuth } from "@/hooks/useAuth";
-import { useI18n } from "@/lib/i18n";
+import { useTranslation } from "react-i18next";
 import { authClient } from "@/lib/auth-client";
 import { authCallbackUrl } from "@/lib/app-url";
 import { POST_AUTH_PATH, SIGN_IN_PATH, AUTH_ERROR_CODES } from "@/lib/auth/post-auth";
 import { beginAuthIntent } from "@/lib/tour-draft.functions";
 
 const AUTH_ERROR_TEXT: Record<string, string> = {
-  provider_rejected: "De aanmelding werd geweigerd. Probeer het opnieuw of kies een andere optie.",
-  provider_not_configured: "Deze inlogoptie is nog niet actief.",
-  session_missing: "We konden je sessie niet bevestigen. Probeer opnieuw in te loggen.",
-  state_mismatch: "De aanmelding is verlopen. Begin opnieuw.",
-  link_expired: "Deze inloglink is verlopen of al gebruikt. Vraag een nieuwe aan.",
-  access_denied: "Je hebt de toegang geweigerd.",
+  provider_rejected: "auth.error.provider_rejected",
+  provider_not_configured: "auth.provider.inactive",
+  session_missing: "auth.error.session_missing",
+  state_mismatch: "auth.error.state_mismatch",
+  link_expired: "auth.error.link_expired",
+  access_denied: "auth.error.access_denied",
 };
 import { getEnabledProviders } from "@/lib/auth-providers.functions";
 import { Altcha } from "@/components/Altcha";
@@ -55,7 +55,7 @@ function errorMessage(error: unknown, fallback: string) {
  * en wachtwoord via `authClient.signIn.email` / `authClient.signUp.email`.
  */
 export default function AuthNeon({ initialMode = "magic" }: { initialMode?: Mode }) {
-  const { t } = useI18n();
+  const { t } = useTranslation();
   const adminPortal = Boolean(usePortalFrame()) || isAdminMode();
   const nav = useNavigate();
   const { user, refresh } = useAuth();
@@ -81,9 +81,9 @@ export default function AuthNeon({ initialMode = "magic" }: { initialMode?: Mode
       }
       setOtpInvalid(true);
       setOtp("");
-      toast.error(res.reason === "rate_limited" ? t("auth.code.tooMany") : t("auth.code.invalid"));
+      toast.error(res.reason === "rate_limited" ? t("auth.ui.code.tooMany") : t("auth.ui.code.invalid"));
     } catch (err) {
-      toast.error(errorMessage(err, t("auth.code.invalid")));
+      toast.error(errorMessage(err, t("auth.ui.code.invalid")));
     } finally {
       setOtpBusy(false);
     }
@@ -135,9 +135,9 @@ export default function AuthNeon({ initialMode = "magic" }: { initialMode?: Mode
     const redirect = params.get("redirect") ?? params.get("next");
     if (code) {
       const known = (AUTH_ERROR_CODES as readonly string[]).includes(code) ? code : "provider_rejected";
-      toast.error(AUTH_ERROR_TEXT[known]);
+      toast.error(t(AUTH_ERROR_TEXT[known]));
     } else if (legacy) {
-      toast.error(AUTH_ERROR_TEXT["provider_rejected"]);
+      toast.error(t(AUTH_ERROR_TEXT["provider_rejected"]));
     }
     // Oude ?redirect=-links: bestemming naar HttpOnly-cookie, URL opschonen.
     if (redirect) void beginAuthIntent({ data: { next: redirect } }).catch(() => null);
@@ -153,12 +153,12 @@ export default function AuthNeon({ initialMode = "magic" }: { initialMode?: Mode
 
   const onEmailChange = (value: string) => {
     setEmail(value);
-    setEmailError(value && !EMAIL_REGEX.test(value.trim()) ? t("auth.email.invalid") : null);
+    setEmailError(value && !EMAIL_REGEX.test(value.trim()) ? t("auth.ui.email.invalid") : null);
   };
 
   const emailAccepted = () => {
     if (EMAIL_REGEX.test(email.trim())) return true;
-    const message = t("auth.email.invalid");
+    const message = t("auth.ui.email.invalid");
     setEmailError(message);
     toast.error(message);
     return false;
@@ -167,7 +167,7 @@ export default function AuthNeon({ initialMode = "magic" }: { initialMode?: Mode
   /** OAuth via Neon Auth — de service stuurt door naar de provider. */
   const oauth = async (provider: string) => {
     if (isInactive(provider)) {
-      toast.info("Deze inlogoptie is nog niet actief.");
+      toast.info(t("auth.provider.inactive"));
       return;
     }
     if (connecting) return; // dubbelklik-bescherming
@@ -198,8 +198,8 @@ export default function AuthNeon({ initialMode = "magic" }: { initialMode?: Mode
         toast.error(
           body?.message ||
             (res.status >= 500
-              ? `${name}-login faalt aan serverzijde. Probeer later opnieuw.`
-              : `${name}-login is nog niet ingesteld.`),
+              ? t("auth.provider.server", { name })
+              : t("auth.provider.config", { name })),
         );
         return;
       }
@@ -211,11 +211,11 @@ export default function AuthNeon({ initialMode = "magic" }: { initialMode?: Mode
         const reason =
           e.message ||
           (e.code === "PROVIDER_NOT_FOUND" || /not found/i.test(e.code ?? "")
-            ? "deze provider is niet ingesteld op de server"
+            ? t("auth.provider.reason")
             : e.status
-              ? `serverfout ${e.status}`
+              ? t("auth.provider.status", { status: e.status })
               : "");
-        toast.error(reason ? `${name}: ${reason}` : t("auth.toast.failed"));
+        toast.error(reason ? `${name}: ${reason}` : t("auth.ui.toast.failed"));
       } else {
         const url = (result as { data?: { url?: string } } | undefined)?.data?.url;
         if (url) {
@@ -223,11 +223,11 @@ export default function AuthNeon({ initialMode = "magic" }: { initialMode?: Mode
           window.location.assign(url);
         } else {
           console.error(`[auth] ${provider} sign-in returned no authorization URL`, result);
-          toast.error(t("auth.toast.failed"));
+          toast.error(t("auth.ui.toast.failed"));
         }
       }
     } catch (err) {
-      toast.error(errorMessage(err, t("auth.toast.failed")));
+      toast.error(errorMessage(err, t("auth.ui.toast.failed")));
     } finally {
       // Bij doorsturen blijft de knop uit, zodat een tweede klik onmogelijk is.
       if (!leaving) {
@@ -243,11 +243,11 @@ export default function AuthNeon({ initialMode = "magic" }: { initialMode?: Mode
     try {
       const res = await authClient.twoFactor.verifyTotp({ code: totp, trustDevice: true });
       if (res.error) {
-        toast.error(res.error.message || "Deze code klopt niet.");
+        toast.error(res.error.message || t("auth.ui.code.invalid"));
         return;
       }
       setNeedTotp(false);
-      toast.success(t("auth.toast.welcome"));
+      toast.success(t("auth.ui.toast.welcome"));
       await refresh();
     } finally {
       setLoading(false);
@@ -259,13 +259,13 @@ export default function AuthNeon({ initialMode = "magic" }: { initialMode?: Mode
     try {
       const res = await authClient.signIn.passkey();
       if (res?.error) {
-        toast.error(res.error.message || "Inloggen met passkey mislukt.");
+        toast.error(res.error.message || t("auth.passkey.failed"));
         return;
       }
-      toast.success(t("auth.toast.welcome"));
+      toast.success(t("auth.ui.toast.welcome"));
       await refresh();
     } catch (err) {
-      toast.error(errorMessage(err, "Inloggen met passkey mislukt."));
+      toast.error(errorMessage(err, t("auth.passkey.failed")));
     } finally {
       setLoading(false);
     }
@@ -285,14 +285,14 @@ export default function AuthNeon({ initialMode = "magic" }: { initialMode?: Mode
       if (error) {
         toast.error(
           error.code === "EMAIL_SEND_FAILED"
-            ? "We konden de inlogmail niet versturen. Probeer een wachtwoord of Google."
-            : error.message || t("auth.toast.signinFailed"),
+            ? t("auth.mail.failed")
+            : error.message || t("auth.ui.toast.signinFailed"),
         );
         return;
       }
       setSentTo(address);
     } catch (err) {
-      toast.error(errorMessage(err, t("auth.toast.signinFailed")));
+      toast.error(errorMessage(err, t("auth.ui.toast.signinFailed")));
     } finally {
       setLoading(false);
     }
@@ -309,7 +309,7 @@ export default function AuthNeon({ initialMode = "magic" }: { initialMode?: Mode
       );
       const error = (result as { error?: { message?: string } } | undefined)?.error;
       if (error) {
-        toast.error(error.message || t("auth.toast.signinFailed"));
+        toast.error(error.message || t("auth.ui.toast.signinFailed"));
         return;
       }
       if ((result as { data?: { twoFactorRedirect?: boolean } }).data?.twoFactorRedirect) {
@@ -317,10 +317,10 @@ export default function AuthNeon({ initialMode = "magic" }: { initialMode?: Mode
         setNeedTotp(true);
         return;
       }
-      toast.success(t("auth.toast.welcome"));
+      toast.success(t("auth.ui.toast.welcome"));
       await refresh();
     } catch (err) {
-      toast.error(errorMessage(err, t("auth.toast.signinFailed")));
+      toast.error(errorMessage(err, t("auth.ui.toast.signinFailed")));
     } finally {
       setLoading(false);
     }
@@ -331,7 +331,7 @@ export default function AuthNeon({ initialMode = "magic" }: { initialMode?: Mode
     if (adminPortal) return;
     if (!emailAccepted()) return;
     if (password.length < MIN_PASSWORD_LENGTH) {
-      toast.error(`Gebruik minstens ${MIN_PASSWORD_LENGTH} tekens.`);
+      toast.error(t("auth.password.minimum", { count: MIN_PASSWORD_LENGTH }));
       return;
     }
     setLoading(true);
@@ -342,13 +342,13 @@ export default function AuthNeon({ initialMode = "magic" }: { initialMode?: Mode
       );
       const error = (result as { error?: { message?: string } } | undefined)?.error;
       if (error) {
-        toast.error(error.message || t("auth.toast.failed"));
+        toast.error(error.message || t("auth.ui.toast.failed"));
         return;
       }
-      toast.success(t("auth.toast.welcome"));
+      toast.success(t("auth.ui.toast.welcome"));
       await refresh();
     } catch (err) {
-      toast.error(errorMessage(err, t("auth.toast.failed")));
+      toast.error(errorMessage(err, t("auth.ui.toast.failed")));
     } finally {
       setLoading(false);
     }
@@ -357,14 +357,14 @@ export default function AuthNeon({ initialMode = "magic" }: { initialMode?: Mode
   const emailField = (
     <div className="space-y-1">
       <Label htmlFor="auth-email" className="text-sm">
-        {t("auth.email.label")}
+        {t("auth.ui.email.label")}
       </Label>
       <Input
         id="auth-email"
         type="email"
         value={email}
         onChange={(e) => onEmailChange(e.target.value)}
-        placeholder="you@domain.com"
+        placeholder={t("auth.email.placeholder")}
         autoComplete="email"
         aria-invalid={emailError ? true : undefined}
         aria-describedby={emailError ? "auth-email-error" : undefined}
@@ -388,14 +388,14 @@ export default function AuthNeon({ initialMode = "magic" }: { initialMode?: Mode
             to="/"
             className="mb-3 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
           >
-            <ArrowLeft className="h-4 w-4" /> {t("auth.back")}
+            <ArrowLeft className="h-4 w-4" /> {t("auth.ui.back")}
           </Link>
         </div>}
 
         <div className="w-full max-w-md rounded-2xl border border-border bg-card p-5 sm:p-7">
           <div className="mb-4">
-            <h1 className="mb-1 font-display text-2xl text-foreground">{adminPortal ? "ROUT beheer" : t("auth.title")}</h1>
-            <p className="text-sm text-muted-foreground">{adminPortal ? "Inloggen" : t("auth.subtitle")}</p>
+            <h1 className="mb-1 font-display text-2xl text-foreground">{adminPortal ? t("auth.admin") : t("auth.ui.title")}</h1>
+            <p className="text-sm text-muted-foreground">{adminPortal ? t("auth.signin") : t("auth.ui.subtitle")}</p>
           </div>
 
           <div
@@ -415,8 +415,8 @@ export default function AuthNeon({ initialMode = "magic" }: { initialMode?: Mode
                 }}
                 disabled={loading || connecting !== null}
                 aria-busy={connecting === tile.id}
-                aria-label={`Verder met ${tile.label}`}
-                title={`Verder met ${tile.label}`}
+                aria-label={t("auth.provider.continue", { name: tile.label })}
+                title={t("auth.provider.continue", { name: tile.label })}
                 className="group flex h-11 items-center justify-center gap-2 rounded-xl border border-border/60 bg-card/60 p-2 transition-all hover:border-border hover:bg-muted/50 disabled:opacity-60"
               >
                 {connecting === tile.id ? (
@@ -424,7 +424,7 @@ export default function AuthNeon({ initialMode = "magic" }: { initialMode?: Mode
                 ) : (
                   <ProviderMark id={tile.id} />
                 )}
-                <span className="sr-only">{`Verder met ${tile.label}`}</span>
+                <span className="sr-only">{t("auth.provider.continue", { name: tile.label })}</span>
               </button>
             ))}
           </div>
@@ -432,7 +432,7 @@ export default function AuthNeon({ initialMode = "magic" }: { initialMode?: Mode
           {connecting && (
             <p role="status" aria-live="polite" className="mt-2 flex items-center justify-center gap-2 text-sm text-muted-foreground">
               <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent" />
-              {`Verbinden met ${visibleTiles.find((x) => x.id === connecting)?.label ?? connecting}…`}
+              {t("auth.provider.connecting", { name: visibleTiles.find((x) => x.id === connecting)?.label ?? connecting })}
             </p>
           )}
 
@@ -442,24 +442,24 @@ export default function AuthNeon({ initialMode = "magic" }: { initialMode?: Mode
             disabled={loading}
             className="mt-2 flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-border/60 bg-card/60 text-sm transition-all hover:bg-muted/50 disabled:opacity-60"
           >
-            Inloggen met passkey
+            {t("auth.passkey")}
           </button>
 
           {needTotp && (
             <form onSubmit={verifyTotp} className="mt-3 space-y-2 rounded-xl border border-border p-3">
-              <p className="text-sm">Voer de 6-cijferige code uit je authenticator-app in.</p>
+              <p className="text-sm">{t("auth.totp")}</p>
               <input
                 value={totp}
                 onChange={(e) => setTotp(e.target.value.replace(/\D/g, "").slice(0, 6))}
                 inputMode="numeric"
                 autoComplete="one-time-code"
                 autoFocus
-                aria-label="Code van 6 cijfers"
+                aria-label={t("auth.ui.code.label")}
                 className="h-11 w-full rounded-xl border border-input bg-background text-center font-mono tracking-[0.4em]"
               />
               <button type="submit" disabled={loading || totp.length !== 6}
                 className="h-11 w-full rounded-xl bg-primary text-sm font-medium text-primary-foreground disabled:opacity-60">
-                Bevestigen
+                {t("auth.confirm")}
               </button>
             </form>
           )}
@@ -469,7 +469,7 @@ export default function AuthNeon({ initialMode = "magic" }: { initialMode?: Mode
           <div className="my-4 flex items-center gap-3">
             <div className="h-px flex-1 bg-border" />
             <span className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
-              {t("auth.divider")}
+              {t("auth.ui.divider")}
             </span>
             <div className="h-px flex-1 bg-border" />
           </div>
@@ -482,11 +482,11 @@ export default function AuthNeon({ initialMode = "magic" }: { initialMode?: Mode
               <span className="mx-auto flex h-10 w-10 items-center justify-center rounded-full border border-border bg-muted/60">
                 <MailCheck className="h-5 w-5" aria-hidden />
               </span>
-              <h2 className="font-display text-lg">{t("auth.sent.title")}</h2>
+              <h2 className="font-display text-lg">{t("auth.ui.sent.title")}</h2>
               <p className="mx-auto max-w-xs text-[13px] leading-relaxed text-muted-foreground">
-                {t("auth.sent.body1")}{" "}
+                {t("auth.ui.sent.body1")}{" "}
                 <strong className="font-medium text-foreground">{sentTo}</strong>
-                {t("auth.sent.body2")}
+                {t("auth.ui.sent.body2")}
               </p>
               <OtpInput
                 value={otp}
@@ -498,7 +498,7 @@ export default function AuthNeon({ initialMode = "magic" }: { initialMode?: Mode
                 disabled={otpBusy}
                 invalid={otpInvalid}
                 autoFocus
-                ariaLabel={t("auth.code.label")}
+                ariaLabel={t("auth.ui.code.label")}
               />
               {otpBusy ? <Loader2 className="mx-auto h-4 w-4 animate-spin text-muted-foreground" aria-hidden /> : null}
               <button
@@ -509,7 +509,7 @@ export default function AuthNeon({ initialMode = "magic" }: { initialMode?: Mode
                 }}
                 className="text-xs text-muted-foreground underline underline-offset-4 hover:text-foreground"
               >
-                {t("auth.other")}
+                {t("auth.ui.other")}
               </button>
             </div>
           ) : mode === "magic" ? (
@@ -523,23 +523,23 @@ export default function AuthNeon({ initialMode = "magic" }: { initialMode?: Mode
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden />{" "}
-                    {t("auth.continue.sending")}
+                    {t("auth.ui.continue.sending")}
                   </>
                 ) : (
                   <>
-                    <Mail className="mr-2 h-4 w-4" aria-hidden /> {t("auth.continue.cta")}
+                    <Mail className="mr-2 h-4 w-4" aria-hidden /> {t("auth.ui.continue.cta")}
                   </>
                 )}
               </Button>
               <p className="text-[11px] leading-relaxed text-muted-foreground">
-                {t("auth.continue.note")}
+                {t("auth.ui.continue.note")}
               </p>
               <button
                 type="button"
                 onClick={() => setMode("password")}
                 className="inline-flex items-center gap-1.5 text-xs text-muted-foreground underline underline-offset-4 hover:text-foreground"
               >
-                <KeyRound className="h-3.5 w-3.5" aria-hidden /> {t("auth.havePassword")}
+                <KeyRound className="h-3.5 w-3.5" aria-hidden /> {t("auth.ui.havePassword")}
               </button>
             </form>
           ) : mode === "password" ? (
@@ -551,7 +551,7 @@ export default function AuthNeon({ initialMode = "magic" }: { initialMode?: Mode
                 className="h-11 w-full rounded-lg font-medium"
                 disabled={loading || !!emailError}
               >
-                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : t("auth.password.signin")}
+                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : t("auth.ui.password.signin")}
               </Button>
               <div className="flex items-center justify-between">
                 <button
@@ -559,14 +559,14 @@ export default function AuthNeon({ initialMode = "magic" }: { initialMode?: Mode
                   onClick={() => setMode("magic")}
                   className="inline-flex items-center gap-1.5 text-xs text-muted-foreground underline underline-offset-4 hover:text-foreground"
                 >
-                  <Mail className="h-3.5 w-3.5" aria-hidden /> {t("auth.password.magic")}
+                  <Mail className="h-3.5 w-3.5" aria-hidden /> {t("auth.ui.password.magic")}
                 </button>
                 {!adminPortal && <button
                   type="button"
                   onClick={() => setMode("signup")}
                   className="text-[11px] text-muted-foreground underline underline-offset-4 hover:text-foreground"
                 >
-                  {t("auth.signup.cta")}
+                  {t("auth.ui.signup.cta")}
                 </button>}
               </div>
             </form>
@@ -584,14 +584,14 @@ export default function AuthNeon({ initialMode = "magic" }: { initialMode?: Mode
                 className="h-11 w-full rounded-lg font-medium"
                 disabled={loading || !!emailError}
               >
-                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : t("auth.signup.cta")}
+                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : t("auth.ui.signup.cta")}
               </Button>
               <button
                 type="button"
                 onClick={() => setMode("magic")}
                 className="inline-flex items-center gap-1.5 text-xs text-muted-foreground underline underline-offset-4 hover:text-foreground"
               >
-                <Mail className="h-3.5 w-3.5" aria-hidden /> {t("auth.password.magic")}
+                <Mail className="h-3.5 w-3.5" aria-hidden /> {t("auth.ui.password.magic")}
               </button>
             </form>
           )}

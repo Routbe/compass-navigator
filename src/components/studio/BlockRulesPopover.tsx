@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Settings2 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import type { BlockContextTag, BlockVisibilityRule, ProfileBlock } from "@/lib/profile";
@@ -22,6 +23,7 @@ interface Props {
 
 /** ⚙️ "Context & Regels" per link or component. */
 export function BlockRulesPopover({ block, onChange }: Props) {
+  const { t } = useTranslation();
   const rule = block.visibilityRule ?? "always_visible";
   const tag = block.contextTag ?? "global";
   const active = rule !== "always_visible" || tag !== "global";
@@ -37,7 +39,7 @@ export function BlockRulesPopover({ block, onChange }: Props) {
       <PopoverTrigger asChild>
         <button
           type="button"
-          aria-label="Context & Regels"
+          aria-label={t("studio.rules.title")}
           className={cn(
             "shrink-0 rounded-lg p-1 transition-colors hover:bg-muted",
             active ? "text-primary" : "text-muted-foreground",
@@ -47,9 +49,9 @@ export function BlockRulesPopover({ block, onChange }: Props) {
         </button>
       </PopoverTrigger>
       <PopoverContent align="end" className="w-72 space-y-4">
-        <p className="text-sm font-medium">Context &amp; Regels</p>
+        <p className="text-sm font-medium">{t("studio.rules.title")}</p>
         <div className="space-y-1.5">
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Wanneer tonen</p>
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{t("studio.rules.when")}</p>
           <div className="grid gap-1.5">
             {RULES.map((r) => (
               <button
@@ -65,7 +67,7 @@ export function BlockRulesPopover({ block, onChange }: Props) {
           </div>
         </div>
         <div className="space-y-1.5">
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Context</p>
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{t("studio.rules.context")}</p>
           <div className="grid grid-cols-3 gap-1.5">
             {TAGS.map((t) => (
               <button
@@ -79,9 +81,7 @@ export function BlockRulesPopover({ block, onChange }: Props) {
               </button>
             ))}
           </div>
-          <p className="text-[11px] text-muted-foreground">
-            Werkt samen met de Pro/Social-schakelaar op je profiel.
-          </p>
+          <p className="text-[11px] text-muted-foreground"> {t("studio.rules.help")} </p>
         </div>
       </PopoverContent>
     </Popover>

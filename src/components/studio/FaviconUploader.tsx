@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useRef, useState } from "react";
 import { Loader2, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
@@ -16,22 +17,24 @@ export function FaviconUploader({
   value: string;
   onChange: (next: string) => void;
 }) {
+  const { t } = useTranslation();
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
 
   async function handleFile(file: File | undefined) {
+  const { t } = useTranslation();
     if (!file) return;
     if (!isAcceptedImage(file)) {
-      toast.error("⚠️ Favicon kon niet worden geüpload, kies een PNG, WEBP of JPG");
+      toast.error(t("studio.favicon.error"));
       return;
     }
     setBusy(true);
     try {
       const dataUrl = await compressFavicon(file);
       onChange(dataUrl);
-      toast.success("Favicon gecomprimeerd en opgeslagen.");
+      toast.success(t("studio.favicon.saved"));
     } catch {
-      toast.error("⚠️ Favicon kon niet worden geüpload, kies een PNG, WEBP of JPG");
+      toast.error(t("studio.favicon.error"));
     } finally {
       setBusy(false);
       if (inputRef.current) inputRef.current.value = "";
@@ -44,7 +47,7 @@ export function FaviconUploader({
         {value ? (
           <img
             src={value}
-            alt="Favicon-voorbeeld"
+            alt={t("studio.favicon.preview")}
             width={24}
             height={24}
             className="h-6 w-6 rounded-[4px] border border-border object-cover"
@@ -64,12 +67,10 @@ export function FaviconUploader({
         >
           {busy ? (
             <>
-              <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> Compresseren &amp; uploaden…
-            </>
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> {t("studio.favicon.uploading")} </>
           ) : (
             <>
-              <Upload className="h-4 w-4" aria-hidden /> Favicon kiezen
-            </>
+              <Upload className="h-4 w-4" aria-hidden /> {t("studio.favicon.choose")} </>
           )}
         </Button>
         {value && !busy && (
@@ -80,8 +81,7 @@ export function FaviconUploader({
             className="gap-1.5 text-muted-foreground"
             onClick={() => onChange("")}
           >
-            <Trash2 className="h-3.5 w-3.5" aria-hidden /> Verwijderen
-          </Button>
+            <Trash2 className="h-3.5 w-3.5" aria-hidden /> {t("studio.common.delete")} </Button>
         )}
       </div>
       <input
@@ -91,10 +91,7 @@ export function FaviconUploader({
         className="hidden"
         onChange={(e) => void handleFile(e.target.files?.[0])}
       />
-      <p className="text-[11px] text-muted-foreground">
-        Automatisch verkleind naar 64×64 WebP (max. 15 KB). Standaard gebruikt je publieke pagina je
-        avatar als browsericoon.
-      </p>
+      <p className="text-[11px] text-muted-foreground"> {t("studio.favicon.help")} </p>
     </div>
   );
 }

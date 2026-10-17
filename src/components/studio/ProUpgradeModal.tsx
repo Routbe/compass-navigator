@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Check, Sparkles } from "lucide-react";
@@ -15,6 +16,7 @@ const FEATURES = [
 
 /** "Upgrade naar ROUT Pro" — UI only; the waitlist is the only stored effect. */
 export function ProUpgradeModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const { t } = useTranslation();
   const load = useServerFn(getProWaitlist);
   const join = useServerFn(joinProWaitlist);
   const [joined, setJoined] = useState(false);
@@ -33,7 +35,7 @@ export function ProUpgradeModal({ open, onClose }: { open: boolean; onClose: () 
       await join();
       setJoined(true);
     } catch {
-      toast.error("Toevoegen aan de wachtlijst lukte niet. Probeer het opnieuw.");
+      toast.error(t("studio.pro.waitlistError"));
     } finally {
       setBusy(false);
     }
@@ -47,8 +49,8 @@ export function ProUpgradeModal({ open, onClose }: { open: boolean; onClose: () 
             <Sparkles className="h-5 w-5 text-primary" aria-hidden />
           </div>
           <DialogHeader className="space-y-1 text-left">
-            <DialogTitle className="font-display text-2xl tracking-tight">Upgrade naar ROUT Pro</DialogTitle>
-            <DialogDescription>Alles om je profiel echt van jou te maken.</DialogDescription>
+            <DialogTitle className="font-display text-2xl tracking-tight">{t("studio.pro.title")}</DialogTitle>
+            <DialogDescription>{t("studio.pro.description")}</DialogDescription>
           </DialogHeader>
         </div>
         <div className="space-y-5 px-6 pb-6">
@@ -68,10 +70,9 @@ export function ProUpgradeModal({ open, onClose }: { open: boolean; onClose: () 
           <Button className="w-full" disabled={joined || busy} onClick={() => void onJoin()}>
             {joined ? (
               <>
-                <Check className="mr-1.5 h-4 w-4" aria-hidden /> Toegevoegd
-              </>
+                <Check className="mr-1.5 h-4 w-4" aria-hidden /> {t("studio.pro.joined")} </>
             ) : (
-              "Zet mij op de wachtlijst"
+              t("studio.pro.join")
             )}
           </Button>
         </div>

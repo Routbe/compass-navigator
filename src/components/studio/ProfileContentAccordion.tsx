@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { type Dispatch, type ReactNode, type SetStateAction, useState } from "react";
 import { Plus } from "lucide-react";
 import { AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -38,6 +39,7 @@ export function ProfileContentAccordion({
   handle,
   onWidget,
 }: Props) {
+  const { t } = useTranslation();
   const [libraryOpen, setLibraryOpen] = useState(false);
   const live = scheduledBlocks(blocks).length;
 
@@ -48,7 +50,7 @@ export function ProfileContentAccordion({
     >
       <AccordionTrigger className="hover:no-underline">
         <span className="flex flex-1 items-center justify-between gap-3 pr-2">
-          <span className="text-base font-medium">🔗 Links &amp; Inhoudscomponenten</span>
+          <span className="text-base font-medium">{t("studio.content.title")}</span>
           <span className="rounded-full border border-border px-2 py-0.5 text-[10px] text-muted-foreground">
             {live} zichtbaar
           </span>
@@ -60,8 +62,7 @@ export function ProfileContentAccordion({
           onClick={() => setLibraryOpen(true)}
           className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-dashed border-border text-sm font-medium transition-colors hover:bg-muted"
         >
-          <Plus className="h-4 w-4" aria-hidden /> Component toevoegen
-        </button>
+          <Plus className="h-4 w-4" aria-hidden /> {t("studio.content.add")} </button>
         <AddComponentModal
           open={libraryOpen}
           onClose={() => setLibraryOpen(false)}

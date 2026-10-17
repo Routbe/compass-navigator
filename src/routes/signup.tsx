@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
@@ -29,6 +30,7 @@ export const Route = createFileRoute("/signup")({
 });
 
 function SignupLanding() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -39,7 +41,7 @@ function SignupLanding() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-3 bg-background px-6 text-center">
       <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" aria-hidden />
-      <h1 className="text-sm text-muted-foreground">Je uitnodiging wordt geopend…</h1>
+      <h1 className="text-sm text-muted-foreground">{t("auth.signup.loading")}</h1>
     </main>
   );
 }

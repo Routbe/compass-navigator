@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useCallback, useEffect, useState } from "react";
 import { ShieldCheck, RotateCw } from "lucide-react";
 import { prefetchProof } from "@/lib/altcha-client";
@@ -8,6 +9,7 @@ import { prefetchProof } from "@/lib/altcha-client";
  * Forms call `takeProof()` at submit; this only warms it up and shows a quiet line.
  */
 export function Altcha({ className = "" }: { className?: string }) {
+  const { t } = useTranslation();
   const [state, setState] = useState<"working" | "ready" | "error">("working");
 
   const start = useCallback(() => {
@@ -29,7 +31,7 @@ export function Altcha({ className = "" }: { className?: string }) {
         className={`mt-2 inline-flex items-center gap-1.5 text-xs text-muted-foreground underline-offset-2 hover:underline ${className}`}
       >
         <RotateCw className="h-3 w-3" aria-hidden />
-        Beveiliging niet geladen — probeer opnieuw
+        {t("auth.altcha.retry")}
       </button>
     );
   }
@@ -37,7 +39,7 @@ export function Altcha({ className = "" }: { className?: string }) {
   return (
     <p className={`mt-2 flex items-center gap-1.5 text-xs text-muted-foreground ${className}`} aria-live="polite">
       <ShieldCheck className={`h-3 w-3 ${state === "ready" ? "text-primary" : "opacity-60"}`} aria-hidden />
-      Beveiligd · zonder tracking
+      {t("auth.altcha.status")}
     </p>
   );
 }
