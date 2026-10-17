@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   FAVORITE_BADGE_STYLE,
   FAVORITE_KIND_EMOJI,
@@ -16,6 +17,7 @@ interface Props {
 
 /** Publieke strook met de favoriete films, series en boeken van een lid. */
 export function FavoritesShowcase({ favorites, theme: t, layout = "grid" }: Props) {
+  const { t: tx } = useTranslation();
   if (favorites.length === 0) return null;
 
   const listClass =
@@ -26,13 +28,12 @@ export function FavoritesShowcase({ favorites, theme: t, layout = "grid" }: Prop
         : "grid grid-cols-2 gap-2 sm:grid-cols-3";
 
   return (
-    <section className="mt-6 w-full" aria-label="Favorieten">
+    <section className="mt-6 w-full" aria-label={tx("profile.favoritesLabel")}>
       <h2
         className="mb-2 text-center text-[10px] font-semibold uppercase tracking-widest"
         style={{ color: t.muted }}
       >
-        Favorieten
-      </h2>
+         {tx("profile.favoritesLabel")} </h2>
       <ul className={listClass}>
         {favorites.map((fav, index) => {
           const hero = layout === "hero" && index === 0;

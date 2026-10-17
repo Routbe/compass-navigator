@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useEffect, useState, type CSSProperties } from "react";
 import { CalendarClock, Loader2, Mail, Sparkles } from "lucide-react";
 import { toast } from "sonner";
@@ -39,6 +40,7 @@ export function PromoBlock({
   style: CSSProperties;
   accent: string;
 }) {
+  const { t } = useTranslation();
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     if (!expiresAt) return;
@@ -58,7 +60,7 @@ export function PromoBlock({
     >
       <span className="flex items-center gap-2">
         <Sparkles className="h-4 w-4 shrink-0" aria-hidden />
-        <span className="min-w-0 flex-1 truncate">{label || "Bekijk mijn nieuwste aanbod"}</span>
+        <span className="min-w-0 flex-1 truncate">{label || t("profile.latestOffer")}</span>
       </span>
       {(badge || countdown) && (
         <span className="flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-wide opacity-90">
@@ -87,6 +89,7 @@ export function NewsletterBlock({
   label: string;
   style: CSSProperties;
 }) {
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
@@ -106,7 +109,7 @@ export function NewsletterBlock({
         toast.error(res.message);
       }
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Inschrijven mislukt.");
+      toast.error(error instanceof Error ? error.message : t("profile.subscribeFailed"));
     } finally {
       setBusy(false);
     }
@@ -116,10 +119,10 @@ export function NewsletterBlock({
     <form onSubmit={submit} className="flex w-full flex-col gap-2 px-4 py-3" style={style}>
       <span className="flex items-center gap-2 text-sm font-medium">
         <Mail className="h-4 w-4" aria-hidden />
-        {label || "Nieuwsbrief"}
+        {label || t("profile.newsletterLabel")}
       </span>
       {done ? (
-        <span className="text-xs opacity-80">Bedankt — je staat op de lijst.</span>
+        <span className="text-xs opacity-80"> {t("profile.subscribed")} </span>
       ) : (
         <div className="flex gap-2">
           <input
@@ -127,8 +130,8 @@ export function NewsletterBlock({
             required
             value={email}
             onChange={(event) => setEmail(event.target.value)}
-            placeholder="jij@email.com"
-            aria-label="E-mailadres"
+            placeholder={t("profile.emailExample")}
+            aria-label={t("profile.email")}
             maxLength={200}
             className="min-w-0 flex-1 rounded-md border border-current/20 bg-transparent px-2.5 py-1.5 text-xs outline-none placeholder:opacity-60"
           />
@@ -138,8 +141,7 @@ export function NewsletterBlock({
             className="inline-flex items-center gap-1 rounded-md border border-current/30 px-3 py-1.5 text-xs font-medium transition-opacity hover:opacity-80 disabled:opacity-50"
           >
             {busy && <Loader2 className="h-3 w-3 animate-spin" aria-hidden />}
-            Inschrijven
-          </button>
+             {t("profile.subscribe")} </button>
         </div>
       )}
       <Altcha />
@@ -162,6 +164,7 @@ export function BookingBlock({
   label: string;
   style: CSSProperties;
 }) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const embed = href.includes("?") ? `${href}&embed=true` : `${href}?embed=true`;
 
@@ -174,17 +177,17 @@ export function BookingBlock({
         style={style}
       >
         <CalendarClock className="h-4 w-4 shrink-0" aria-hidden />
-        <span className="min-w-0 flex-1 truncate text-center">{label || "Plan een gesprek"}</span>
+        <span className="min-w-0 flex-1 truncate text-center">{label || t("profile.scheduleCall")}</span>
         <span className="h-4 w-4 shrink-0" aria-hidden />
       </button>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-3xl p-0">
           <DialogHeader className="px-4 pt-4">
-            <DialogTitle>{label || "Plan een gesprek"}</DialogTitle>
+            <DialogTitle>{label || t("profile.scheduleCall")}</DialogTitle>
           </DialogHeader>
           <iframe
             src={embed}
-            title={label || "Boekingsagenda"}
+            title={label || t("profile.bookingCalendar")}
             className="h-[70vh] w-full rounded-b-lg border-0"
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"

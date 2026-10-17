@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { proxied } from "@/lib/image-proxy-rules";
@@ -102,6 +103,7 @@ function Waveform({ seed, ratio, color, muted }: { seed: string; ratio: number; 
  * Hidden when nothing plays. Mobile: compact peek pill that expands on tap.
  */
 export function NowPlaying({ handle, theme }: { handle: string; theme: Theme }) {
+  const { t } = useTranslation();
   const q = useNowPlaying(handle);
   const d = q.data;
   const { pos, ratio, ended } = useLiveProgress(d);
@@ -134,7 +136,7 @@ export function NowPlaying({ handle, theme }: { handle: string; theme: Theme }) 
       {artwork("h-16 w-16")}
       <div className="min-w-0 flex-1 text-left">
         <span className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider" style={{ color: theme.muted }}>
-          <span className="now-playing-bars" aria-hidden><i /><i /><i /></span> {ended ? "Volgend nummer laden…" : "Nu aan het luisteren"}
+          <span className="now-playing-bars" aria-hidden><i /><i /><i /></span> {ended ? t("profile.loadingNext") : t("profile.listeningNow")}
         </span>
         <span className="block truncate text-sm font-semibold">{d.title}</span>
         <span className="block truncate text-xs" style={{ color: theme.muted }}>{d.artist}</span>
@@ -158,7 +160,7 @@ export function NowPlaying({ handle, theme }: { handle: string; theme: Theme }) 
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        aria-label={open ? "Speler inklappen" : `Nu aan het luisteren: ${d.title}`}
+        aria-label={open ? t("profile.collapsePlayer") : `Nu aan het luisteren: ${d.title}`}
         className="glass-capsule w-full rounded-2xl border p-2 text-left backdrop-blur-md transition-all duration-300 sm:hidden"
         style={glass}
       >
@@ -168,8 +170,7 @@ export function NowPlaying({ handle, theme }: { handle: string; theme: Theme }) 
             {d.url && (
               <a href={d.url} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}
                 className="mt-2 block text-center text-xs underline" style={{ color: theme.muted }}>
-                Open in Spotify
-              </a>
+                 {t("profile.openSpotify")} </a>
             )}
           </div>
         ) : (

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useState, type CSSProperties } from "react";
 import { CalendarClock, Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -25,6 +26,7 @@ export function BookingCard({
   config: BookingConfig;
   style: CSSProperties;
 }) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -64,7 +66,7 @@ export function BookingCard({
         toast.error(res.message);
       }
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Aanvragen mislukt.");
+      toast.error(error instanceof Error ? error.message : t("profile.requestFailed"));
     } finally {
       setBusy(false);
     }
@@ -80,7 +82,7 @@ export function BookingCard({
       >
         <CalendarClock className="h-4 w-4 shrink-0" aria-hidden />
         <span className="min-w-0 flex-1 truncate text-center">
-          {config.title || "Plan een afspraak / gesprek"}
+          {config.title || t("profile.bookingTitle")}
         </span>
         <span className="h-4 w-4 shrink-0" aria-hidden />
       </button>
@@ -88,36 +90,33 @@ export function BookingCard({
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className={config.mode === "embed" ? "max-w-3xl p-0" : "max-w-md"}>
           <DialogHeader className={config.mode === "embed" ? "px-4 pt-4" : undefined}>
-            <DialogTitle>{config.title || "Plan een afspraak / gesprek"}</DialogTitle>
+            <DialogTitle>{config.title || t("profile.bookingTitle")}</DialogTitle>
           </DialogHeader>
 
           {config.mode === "embed" ? (
             embed ? (
               <iframe
                 src={embed}
-                title={config.title || "Boekingsagenda"}
+                title={config.title || t("profile.bookingCalendar")}
                 className="h-[70vh] w-full rounded-b-lg border-0"
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
               />
             ) : (
               <p className="px-1 pb-4 text-sm text-muted-foreground">
-                Deze agenda is nog niet ingesteld.
-              </p>
+                 {t("profile.calendarNotSet")} </p>
             )
           ) : done ? (
             <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm text-emerald-900">
-              Bedankt! Je aanvraag is verstuurd. Je krijgt een e-mail zodra ze bevestigd is.
-            </div>
+               {t("profile.bookingSent")} </div>
           ) : (
             <form onSubmit={submit} className="space-y-3">
               {config.note && <p className="text-sm text-muted-foreground">{config.note}</p>}
-              <p className="text-xs text-muted-foreground">Duur: {config.duration} minuten</p>
+              <p className="text-xs text-muted-foreground"> {t("profile.duration")} {config.duration}  {t("profile.minutes")} </p>
 
               <div className="space-y-1">
                 <label className="text-xs font-medium" htmlFor="booking-name">
-                  Volledige naam
-                </label>
+                   {t("profile.fullName")} </label>
                 <input
                   id="booking-name"
                   required
@@ -130,8 +129,7 @@ export function BookingCard({
 
               <div className="space-y-1">
                 <label className="text-xs font-medium" htmlFor="booking-email">
-                  E-mailadres
-                </label>
+                   {t("profile.email")} </label>
                 <input
                   id="booking-email"
                   type="email"
@@ -146,8 +144,7 @@ export function BookingCard({
               <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-1">
                   <label className="text-xs font-medium" htmlFor="booking-date">
-                    Datum
-                  </label>
+                     {t("profile.date")} </label>
                   <input
                     id="booking-date"
                     type="date"
@@ -160,8 +157,7 @@ export function BookingCard({
                 </div>
                 <div className="space-y-1">
                   <label className="text-xs font-medium" htmlFor="booking-time">
-                    Tijdstip
-                  </label>
+                     {t("profile.time")} </label>
                   <select
                     id="booking-time"
                     required
@@ -180,8 +176,7 @@ export function BookingCard({
 
               <div className="space-y-1">
                 <label className="text-xs font-medium" htmlFor="booking-message">
-                  Bericht / onderwerp (optioneel)
-                </label>
+                   {t("profile.bookingMessage")} </label>
                 <textarea
                   id="booking-message"
                   rows={3}
@@ -203,8 +198,7 @@ export function BookingCard({
                 className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-foreground px-4 py-2.5 text-sm font-medium text-background transition-opacity hover:opacity-90 disabled:opacity-50"
               >
                 {busy && <Loader2 className="h-4 w-4 animate-spin" aria-hidden />}
-                Afspraak aanvragen
-              </button>
+                 {t("profile.requestBooking")} </button>
             </form>
           )}
         </DialogContent>

@@ -6,10 +6,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { monthYear } from "@/components/profile/VerifiedBadgePopover";
 import { useI18n } from "@/lib/i18n";
 import {
-  BADGE_DOMAIN_BODY,
-  BADGE_HUMAN_BODY,
-  BADGE_INFLUENCER_BODY,
-  BADGE_VERIFIED_BODY,
   formatBadgeName,
   type BadgeBackdrop as BadgeBackdropStyle,
   type BadgeNameFormat,
@@ -66,21 +62,21 @@ export function ProfileBadge({
 
   const title =
     type === "human"
-      ? "Bevestigd: echte mens"
+      ? t("badges.humanTitle")
       : type === "domain"
-        ? `Bedrijf geverifieerd${domain ? ` — ${domain}` : ""}`
+        ? t("badges.businessTitle", { domain: domain ? ` — ${domain}` : "" })
         : type === "influencer"
-          ? "Geverifieerde creator"
+          ? t("badges.creatorTitle")
           : t("profile.verified_badge_title");
 
   const body =
     type === "human"
-      ? BADGE_HUMAN_BODY
+      ? t("badges.humanExplanation")
       : type === "domain"
-        ? BADGE_DOMAIN_BODY
+        ? t("badges.businessExplanation")
         : type === "influencer"
-          ? BADGE_INFLUENCER_BODY
-          : BADGE_VERIFIED_BODY;
+          ? t("badges.creatorExplanation")
+          : t("badges.verifiedExplanation");
 
   const icon = (extra = "") =>
     type === "domain" ? (

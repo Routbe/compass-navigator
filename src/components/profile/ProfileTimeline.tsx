@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { getPublicTimeline } from "@/lib/public-timeline.functions";
 import type { TimelineItem } from "@/lib/public-timeline";
@@ -19,6 +20,7 @@ export function ProfileTimeline({
   userId: string;
   theme: { text: string; muted: string; border: string };
 }) {
+  const { t } = useTranslation();
   const [items, setItems] = useState<TimelineItem[]>([]);
   useEffect(() => {
     if (!userId || userId === "draft") return;
@@ -33,13 +35,12 @@ export function ProfileTimeline({
 
   if (items.length === 0) return null;
   return (
-    <section className="mt-6 w-full" aria-label="Tijdlijn">
+    <section className="mt-6 w-full" aria-label={t("profile.timelineLabel")}>
       <p
         className="mb-2 text-center text-[10px] font-semibold uppercase tracking-widest"
         style={{ color: theme.muted }}
       >
-        Tijdlijn
-      </p>
+         {t("profile.timelineLabel")} </p>
       <ol className="space-y-2 border-l pl-4" style={{ borderColor: theme.border }}>
         {items.map((it) => (
           <li key={it.id} className="text-xs" style={{ color: theme.text }}>

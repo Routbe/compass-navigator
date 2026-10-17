@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useEffect, useState, type CSSProperties } from "react";
 import { BarChart3 } from "lucide-react";
 
@@ -32,6 +33,7 @@ export function PollCard({
   config: PollConfig;
   style?: CSSProperties;
 }) {
+  const { t } = useTranslation();
   const options = config.options.filter((o) => o.trim());
   const [counts, setCounts] = useState<number[] | null>(null);
   const [voted, setVoted] = useState(false);
@@ -107,7 +109,7 @@ export function PollCard({
       </div>
       {voted && (
         <p className="mt-2 text-[11px] opacity-70">
-          {total} {total === 1 ? "stem" : "stemmen"}
+          {total} {total === 1 ? t("profile.vote") : t("profile.votes")}
         </p>
       )}
     </div>

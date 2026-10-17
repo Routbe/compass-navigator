@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import type { CSSProperties } from "react";
 import { CalendarPlus, MapPin } from "lucide-react";
 
@@ -17,6 +18,7 @@ export function EventListCard({
   config: EventListConfig;
   style?: CSSProperties;
 }) {
+  const { t } = useTranslation();
   const events = visibleEvents(config);
   if (!events.length) return null;
 
@@ -59,7 +61,7 @@ export function EventListCard({
                       rel="noopener noreferrer"
                       className="rounded-full bg-foreground px-3 py-1.5 text-xs font-medium text-background transition-opacity hover:opacity-90"
                     >
-                      {event.buttonLabel || "Tickets"}
+                      {event.buttonLabel || t("profile.tickets")}
                     </a>
                   )}
                   <a
@@ -68,8 +70,7 @@ export function EventListCard({
                     className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1.5 text-xs font-medium transition-opacity hover:opacity-80"
                   >
                     <CalendarPlus className="h-3 w-3" aria-hidden />
-                    Agenda
-                  </a>
+                     {t("profile.agenda")} </a>
                   <a
                     href={eventGoogleUrl(event)}
                     target="_blank"

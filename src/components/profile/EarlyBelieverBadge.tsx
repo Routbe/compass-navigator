@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 /**
  * Fleur-de-lis embleem voor Early Believers — de leden die er vanaf het
  * begin bij waren. Getekend als SVG zodat hij in elke themakleur meekleurt.
@@ -32,6 +33,7 @@ export function EarlyBelieverBadge({
   borderColor?: string;
   textColor?: string;
 }) {
+  const { t } = useTranslation();
   return (
     <button
       type="button"
@@ -42,7 +44,6 @@ export function EarlyBelieverBadge({
         color: textColor,
       }}
     >
-      <FleurDeLisIcon className="h-3.5 w-3.5" aria-hidden /> Early Believer
-    </button>
+      <FleurDeLisIcon className="h-3.5 w-3.5" aria-hidden />  {t("badges.earlyBelieverLabel")} </button>
   );
 }

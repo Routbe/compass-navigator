@@ -69,7 +69,7 @@ export function ExploreGallery({ cards, filters = false }: { cards: ShowcaseCard
         </div>
       )}
       {shown.length === 0 && <p className="py-12 text-center text-muted-foreground">{t("explore.noResults")}</p>}
-      <div className="grid grid-cols-1 gap-4 sm:auto-rows-[minmax(240px,auto)] sm:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:auto-rows-fr sm:grid-cols-4">
         {shown.map((c, i) => {
           const big = i === 0;
           return (
@@ -79,18 +79,18 @@ export function ExploreGallery({ cards, filters = false }: { cards: ShowcaseCard
               params={{ username: c.handle }}
               preload="intent"
               className={cn(
-                "group relative flex min-w-0 flex-col overflow-hidden rounded-lg border border-border bg-card transition-all duration-300 motion-safe:hover:-translate-y-1 [@media(hover:hover)]:hover:border-primary/50 [@media(hover:hover)]:hover:shadow-lg",
+                "group relative flex min-w-0 flex-col gap-3 overflow-hidden rounded-3xl border border-border bg-card p-3 transition-all duration-300 motion-safe:hover:-translate-y-1 [@media(hover:hover)]:hover:border-foreground/30 [@media(hover:hover)]:hover:shadow-xl",
                 SPAN[i % SPAN.length],
               )}
             >
-              <div className="flex flex-1 items-center bg-muted">
+              <div className="relative aspect-[1200/630] w-full overflow-hidden rounded-2xl border border-border/60 bg-muted">
                 <img
                   src={`/api/public/og/${encodeURIComponent(c.handle)}.png`}
                   alt={t("explore.preview", { name: c.displayName ?? c.handle })}
                   loading="lazy"
                   width={1200}
                   height={630}
-                  className="aspect-[1200/630] w-full object-contain"
+                  className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
                   onError={(event) => {
                     const image = event.currentTarget;
                     if (!image.dataset.fallback) {
@@ -102,12 +102,12 @@ export function ExploreGallery({ cards, filters = false }: { cards: ShowcaseCard
                   }}
                 />
               </div>
-              <div className="space-y-3 p-4">
+              <div className="mt-auto space-y-2 px-1 pb-1">
               <div className="flex items-center gap-3">
                 {c.avatarUrl ? (
-                  <img src={proxied(c.avatarUrl) ?? undefined} alt="" loading="lazy" className="h-10 w-10 shrink-0 rounded-full border border-border object-cover" />
+                  <img src={proxied(c.avatarUrl) ?? undefined} alt="" loading="lazy" className="h-9 w-9 shrink-0 rounded-full border border-border object-cover" />
                 ) : (
-                  <span className={cn("flex items-center justify-center rounded-full bg-muted font-serif font-semibold text-foreground", big ? "h-16 w-16 text-2xl" : "h-11 w-11 text-lg")}>
+                  <span className={cn("flex items-center justify-center rounded-full bg-muted font-serif font-semibold text-foreground", big ? "h-11 w-11 text-lg" : "h-9 w-9 text-base")}>
                     {(c.displayName ?? c.handle).charAt(0).toUpperCase()}
                   </span>
                 )}
@@ -120,7 +120,7 @@ export function ExploreGallery({ cards, filters = false }: { cards: ShowcaseCard
                 </div>
               </div>
               {(c.tagline || c.bio) && (
-                 <p className="line-clamp-2 text-sm leading-relaxed text-muted-foreground">
+                 <p className={cn("text-sm leading-relaxed text-muted-foreground", big ? "line-clamp-2" : "line-clamp-1")}>
                   {c.tagline || c.bio}
                 </p>
               )}

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { proxied } from "@/lib/image-proxy-rules";
 import { formatCount, type YouTubeCard as Card } from "@/lib/youtube-format";
@@ -6,6 +7,7 @@ type Theme = { card: string; border: string; text: string; muted: string };
 
 /** Presentational YouTube channel card (profile + Studio preview). */
 export function YouTubeCardView({ card, theme }: { card: Card; theme: Theme }) {
+  const { t } = useTranslation();
   const avatar = proxied(card.avatar);
   return (
     <div
@@ -21,9 +23,8 @@ export function YouTubeCardView({ card, theme }: { card: Card; theme: Theme }) {
         <div className="min-w-0 flex-1">
           <p className="truncate font-medium">{card.title}</p>
           <p className="text-xs" style={{ color: theme.muted }}>
-            {card.subscribers != null && <>{formatCount(card.subscribers)} abonnees · </>}
-            {formatCount(card.views)} weergaven
-            {card.videoCount != null && <> · {formatCount(card.videoCount)} video's</>}
+            {card.subscribers != null && <>{formatCount(card.subscribers)}  {t("profile.subscribersSuffix")} </>}
+            {formatCount(card.views)}  {t("profile.views")} {card.videoCount != null && <> · {formatCount(card.videoCount)}  {t("profile.videos")} </>}
           </p>
         </div>
         <span className="text-xs font-medium" style={{ color: theme.muted }}>YouTube ↗</span>

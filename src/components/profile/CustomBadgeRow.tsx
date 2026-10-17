@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { ExternalLink, Users } from "lucide-react";
@@ -9,10 +10,10 @@ import { BadgeEmblem } from "./BadgeEmblem";
 type Item = Awaited<ReturnType<typeof getPublicCustomBadges>>[number];
 
 const KIND_LABEL: Record<Item["kind"], string> = {
-  crest: "Wapenschild",
-  emblem: "Embleem",
-  award: "Onderscheiding",
-  partner: "Partner",
+  crest: "badges.crest",
+  emblem: "badges.emblem",
+  award: "badges.award",
+  partner: "badges.partner",
 };
 
 function formatDate(iso: string | null) {
@@ -23,6 +24,7 @@ function formatDate(iso: string | null) {
 
 /** Digitaal paspoort: badges as stamps; a click opens the stamp with date, emblem and reason. */
 export function ProfilePassport({ handle, theme }: { handle: string | null | undefined; theme: { card: string; border: string; text: string; muted: string } }) {
+  const { t } = useTranslation();
   const load = useServerFn(getPublicCustomBadges);
   const [items, setItems] = useState<Item[]>([]);
   const [open, setOpen] = useState<Item | null>(null);
@@ -42,10 +44,10 @@ export function ProfilePassport({ handle, theme }: { handle: string | null | und
   const since = formatDate(open?.grantedAt ?? null);
   return (
     <>
-      <section aria-label="Digitaal paspoort" className={`mt-6 w-full border-y py-5 ${theme.border}`}>
+      <section aria-label={t("profile.passport")} className={`mt-6 w-full border-y py-5 ${theme.border}`}>
         <header className="mb-4 flex flex-wrap items-baseline justify-between gap-2">
-          <h2 className={`font-display text-sm ${theme.text}`}>Digitaal paspoort</h2>
-          <span className={`text-xs ${theme.muted}`}>{items.length} {items.length === 1 ? "stempel" : "stempels"}</span>
+          <h2 className={`font-display text-sm ${theme.text}`}> {t("profile.passport")} </h2>
+          <span className={`text-xs ${theme.muted}`}>{items.length} {items.length === 1 ? t("profile.stamp") : t("profile.stamps")}</span>
         </header>
         <ul className="grid grid-cols-3 gap-3 sm:grid-cols-4">
           {items.map((b, i) => (
@@ -53,7 +55,7 @@ export function ProfilePassport({ handle, theme }: { handle: string | null | und
               <Button variant="ghost"
                 type="button"
                 onClick={() => setOpen(b)}
-                aria-label={`${b.name} — stempel bekijken`}
+                aria-label={t("profile.viewStamp", { name: b.name })}
                 style={{ borderColor: b.accentColor ?? undefined, rotate: `${((i * 37) % 13) - 6}deg` }}
                 className="flex aspect-square h-auto w-full whitespace-normal flex-col items-center justify-center gap-1 rounded-full border-2 border-dashed border-primary/60 p-2 motion-safe:transition-transform motion-safe:hover:scale-105 [&_svg]:size-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
@@ -78,7 +80,7 @@ export function ProfilePassport({ handle, theme }: { handle: string | null | und
                 </div>
               </div>
               <DialogHeader className="items-center space-y-1 sm:text-center">
-                <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">{KIND_LABEL[open.kind]}</p>
+                <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">{t(KIND_LABEL[open.kind])}</p>
                 <DialogTitle className="font-display text-2xl">{open.name}</DialogTitle>
                 {open.motto && <p className="font-serif text-sm italic">“{open.motto}”</p>}
                 <DialogDescription>{open.description ?? `Toegekend door ROUT aan @${handle}.`}</DialogDescription>
@@ -86,19 +88,19 @@ export function ProfilePassport({ handle, theme }: { handle: string | null | und
               {open.story && <p className="whitespace-pre-line text-left text-sm leading-relaxed">{open.story}</p>}
               {open.reason && (
                 <p className="rounded-lg bg-muted px-3 py-2 text-sm">
-                  <span className="text-muted-foreground">Voor @{handle}: </span>
+                  <span className="text-muted-foreground"> {t("profile.forHandle")} {handle}: </span>
                   {open.reason}
                 </p>
               )}
               <dl className="grid grid-cols-2 gap-2 text-left text-xs">
                 {since && (
                   <div className="rounded-lg border border-border p-2">
-                    <dt className="text-muted-foreground">Toegekend</dt>
+                    <dt className="text-muted-foreground"> {t("profile.granted")} </dt>
                     <dd className="font-medium">{since}</dd>
                   </div>
                 )}
                 <div className="rounded-lg border border-border p-2">
-                  <dt className="text-muted-foreground">Houders</dt>
+                  <dt className="text-muted-foreground"> {t("profile.holders")} </dt>
                   <dd className="flex items-center gap-1 font-medium">
                     <Users className="h-3 w-3" aria-hidden /> {open.holders}
                   </dd>
@@ -106,7 +108,7 @@ export function ProfilePassport({ handle, theme }: { handle: string | null | und
               </dl>
               {open.issuerName && (
                 <p className="text-xs text-muted-foreground">
-                  Uitgegeven door{" "}
+                   {t("profile.issuedBy")} {" "}
                   {open.issuerUrl ? (
                     <a href={open.issuerUrl} target="_blank" rel="noopener noreferrer nofollow" className="inline-flex items-center gap-0.5 underline">
                       {open.issuerName} <ExternalLink className="h-3 w-3" aria-hidden />

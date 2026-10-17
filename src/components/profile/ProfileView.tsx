@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { ProfileYouTubeCard } from "@/components/profile/YouTubeCard";
 import { isProfileSectionKind, usesSectionFallback } from "@/lib/profile-section-blocks";
 import { NowPlaying, useNowPlaying } from "@/components/profile/NowPlaying";
@@ -121,6 +122,7 @@ export function ProfileView({
   /** "wide" toont links in twee kolommen (desktopvoorbeeld / brede schermen). */
   layout?: "auto" | "wide";
 }) {
+  const { t: tx } = useTranslation();
   const { t: tr, locale } = useI18n();
   const sendClick = useServerFn(recordLinkClickFn);
   /** Anonieme klikmeting; faalt stil zodat een link altijd opent. */
@@ -254,7 +256,7 @@ export function ProfileView({
                 />
               </span>
             )}
-            {followers && <span>{followers} volgers</span>}
+            {followers && <span>{followers}  {tx("profile.followersLabel")} </span>}
           </a>
         );
       })}
@@ -478,7 +480,7 @@ export function ProfileView({
             className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-opacity hover:opacity-80"
             style={{ border: `1px solid ${t.border}`, color: t.text }}
           >
-            <Mail className="h-3.5 w-3.5" aria-hidden /> Contact via {aliasEmail}
+            <Mail className="h-3.5 w-3.5" aria-hidden />  {tx("profile.contactVia")} {aliasEmail}
           </a>
         )}
         {(shownBio || profile.tagline) && (
@@ -493,8 +495,7 @@ export function ProfileView({
             style={{ border: `1px solid ${t.border}`, color: t.text }}
           >
             <Users className="h-3.5 w-3.5" aria-hidden />
-            {formatReach(profile.total_reach_count ?? 0)} bereik
-          </span>
+            {formatReach(profile.total_reach_count ?? 0)}  {tx("profile.reachLabel")} </span>
         )}
 
         {bioLocales.length > 1 && (
@@ -577,8 +578,7 @@ export function ProfileView({
          <div className={`mt-8 grid w-full gap-3 ${wide ? "lg:grid-cols-2" : "grid-cols-1"}`}>
           {blocks.length === 0 && (
             <p className="text-center text-sm" style={{ color: t.muted }}>
-              No links yet.
-            </p>
+               {tx("profile.noLinks")} </p>
           )}
           {blocks.map((b) =>
             b.kind === "widget:guestbook" ? (
@@ -590,7 +590,7 @@ export function ProfileView({
             ) : b.kind === "live" ? (
               profile.username ? <div key={b.id} className="w-full lg:col-span-full"><ProfileIntegrations handle={profile.username} theme={t} provider={b.value} stats={b.stats} /></div> : null
             ) : b.kind === "widget:reach" ? (
-              profile.show_total_reach && (profile.total_reach_count ?? 0) > 0 ? <div key={b.id} className="flex w-full items-center justify-center gap-1.5 text-sm lg:col-span-full"><Users className="h-4 w-4" aria-hidden />{formatReach(profile.total_reach_count ?? 0)} bereik</div> : null
+              profile.show_total_reach && (profile.total_reach_count ?? 0) > 0 ? <div key={b.id} className="flex w-full items-center justify-center gap-1.5 text-sm lg:col-span-full"><Users className="h-4 w-4" aria-hidden />{formatReach(profile.total_reach_count ?? 0)}  {tx("profile.reachLabel")} </div> : null
             ) : b.kind === "spacer" ? (
               <div key={b.id} className="h-6 w-full" aria-hidden />
             ) : b.kind === "text" ? (
@@ -765,11 +765,11 @@ export function ProfileView({
             type="button"
             onClick={() => setWireframe((v) => !v)}
             aria-pressed={wireframe}
-            title="Ontwerpmodus (of typ DEV)"
+            title={tx("profile.designMode")}
             className="font-mono text-[10px] tracking-widest opacity-40 transition-opacity hover:opacity-90"
             style={{ color: t.muted }}
           >
-            {wireframe ? "</> inspect aan" : "</>"}
+            {wireframe ? tx("profile.inspectOn") : "</>"}
           </button>
           {showWatermark && (
             <a
@@ -777,8 +777,7 @@ export function ProfileView({
               className="text-[11px] uppercase tracking-widest transition-opacity hover:opacity-70"
               style={{ color: t.muted }}
             >
-              Powered by ROUT
-            </a>
+               {tx("profile.poweredBy")} </a>
           )}
         </footer>
       </div>
@@ -795,15 +794,14 @@ export function ProfileView({
 }
 
 export function ProfileMissing({ username, free }: { username: string; free?: boolean }) {
+  const { t: tx } = useTranslation();
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-2 bg-background px-6 text-center">
-      <h1 className="font-display text-2xl">@{username} is still available</h1>
+      <h1 className="font-display text-2xl">@{username}  {tx("profile.availableSuffix")} </h1>
       <p className="text-sm text-muted-foreground">
-        This handle has not been claimed {free ? "in the community namespace" : "or verified"} yet.
-      </p>
+         {tx("profile.unclaimed")} {free ? tx("profile.communityNamespace") : tx("profile.orVerified")}  {tx("profile.yet")} </p>
       <a href="/auth?mode=signup" className="mt-2 text-sm font-medium underline">
-        Claim it on ROUT →
-      </a>
+         {tx("profile.claimHandle")} </a>
     </div>
   );
 }
@@ -820,21 +818,19 @@ export function ProfileLookupError({
   username: string;
   onRetry?: () => void;
 }) {
+  const { t: tx } = useTranslation();
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-2 bg-background px-6 text-center">
       <h1 className="font-display text-2xl">We couldn&apos;t load @{username}</h1>
       <p className="max-w-sm text-sm text-muted-foreground">
-        The profile lookup failed, so we can&apos;t tell whether this handle is taken. This is a
-        connection or server problem — not a missing profile.
-      </p>
+         {tx("profile.lookupFailed")} </p>
       {onRetry && (
         <button
           type="button"
           onClick={onRetry}
           className="mt-2 text-sm font-medium underline underline-offset-4"
         >
-          Try again
-        </button>
+           {tx("profile.tryAgain")} </button>
       )}
     </div>
   );
@@ -874,6 +870,7 @@ function ProfileStatus({ handle, prefs }: {
   handle: string | null;
   prefs: { statusLine?: string | null; statusBubblePosition: Parameters<typeof StatusBubble>[0]["position"]; statusBubbleStyle: Parameters<typeof StatusBubble>[0]["bubbleStyle"]; statusBubbleBg: string | null; statusBubbleFont: Parameters<typeof StatusBubble>[0]["font"] };
 }) {
+  const { t: tx } = useTranslation();
   const np = useNowPlaying(handle);
   const playing = Boolean(np.data?.playing);
   if (!prefs.statusLine && !playing) return null;
@@ -885,7 +882,7 @@ function ProfileStatus({ handle, prefs }: {
       bg={prefs.statusBubbleBg}
       font={prefs.statusBubbleFont}
       extra={playing ? (
-        <span className="ml-1 inline-flex" role="img" aria-label="Luistert nu muziek" title={`${np.data?.title ?? ""} — ${np.data?.artist ?? ""}`}>🎧</span>
+        <span className="ml-1 inline-flex" role="img" aria-label={tx("profile.listeningMusic")} title={`${np.data?.title ?? ""} — ${np.data?.artist ?? ""}`}>🎧</span>
       ) : undefined}
     />
   );
