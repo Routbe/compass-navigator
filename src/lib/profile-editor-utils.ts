@@ -1,6 +1,6 @@
 import { BarChart3, Globe, Link2, Palette, Settings } from "lucide-react";
 import { BLOCK_KINDS } from "@/lib/profile";
-import type { QuickCreateOption, RangeOption, StudioTabDef } from "@/types/profile-editor";
+import type { RangeOption, StudioTabDef } from "@/types/profile-editor";
 
 /**
  * `verifiedOnly` tabs are hidden entirely for free members: subdomains,
@@ -14,13 +14,6 @@ export const TABS: StudioTabDef[] = [
   { id: "identity", label: "Domains & Bluesky", icon: Globe, verifiedOnly: true },
   { id: "settings", label: "Settings & verified", icon: Settings },
 ];
-
-export const QUICK_CREATE: readonly QuickCreateOption[] = [
-  { kind: "link", label: "+ Link" },
-  { kind: "__socials", label: "+ Socials" },
-  { kind: "__fediverse", label: "+ Matrix/Fediverse" },
-  { kind: "vcard", label: "+ vCard" },
-] as const;
 
 export const RANGE_OPTIONS: readonly RangeOption[] = [
   { id: "7d", label: "Last 7 days", days: 7 },

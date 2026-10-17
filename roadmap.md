@@ -6,9 +6,13 @@
 - [x] P4 Badge transparency; alias inherits Pro
 - [x] P5 Studio presets, style options, scroll stability
 - [ ] Snapchat in Live Integraties hub (separate storage)
-- [ ] Featured profile OG previews on Explore
-- [ ] Public profile badges and action-dialog translations
-- [ ] Platform-wide hardcoded text audit and translation cleanup
+- [x] Featured profile OG previews on Explore
+- [x] Public profile badges and action-dialog translations
+- [ ] Platform-wide hardcoded text audit and translation cleanup (profile + explore done; dashboard/studio/admin open)
 - [ ] Browser verification of Snapchat and profile previews
 - [x] Snapchat client credentials saved securely
 - [ ] Optional sign-in/email/storage/payment keys (Google, Brevo, Scaleway, Stripe) — waits on user
+- [ ] Hub: single "Component toevoegen", social tabs, new platforms, YouTube as normal component, remove Totaal bereik, Badges & diploma's folder
+- [ ] Social block: expandable settings, connect account, green verified mark, followers toggle
+- [ ] Workspace switcher only with other workspaces (always in console) + console onboarding tour
+- [ ] ROUT login redirect-URI error: validation fix + console mismatch helper (root cause needs a real example)

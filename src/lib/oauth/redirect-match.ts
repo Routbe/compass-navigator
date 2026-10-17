@@ -47,7 +47,8 @@ export function normalizeRedirectUri(raw: string | null | undefined): string | n
   } catch {
     return null;
   }
-  if (u.hash || u.username || u.password) return null;
+  if (cleaned.includes("#") || u.username || u.password) return null;
+  if (u.protocol !== "https:" && !(u.protocol === "http:" && ["localhost", "127.0.0.1"].includes(u.hostname))) return null;
   const port = u.port && !((u.protocol === "https:" && u.port === "443") || (u.protocol === "http:" && u.port === "80")) ? `:${u.port}` : "";
   return `${u.protocol.toLowerCase()}//${u.hostname.toLowerCase()}${port}${normalizePath(u.pathname)}${u.search}`;
 }
@@ -61,4 +62,9 @@ export function redirectUrisMatch(registered: string, requested: string): boolea
 /** Geeft de geregistreerde URI terug die overeenkomt (canoniek terugsturen), of null. */
 export function findMatchingRedirect(registered: string[], requested: string): string | null {
   return registered.find((r) => redirectUrisMatch(r, requested)) ?? null;
+}
+
+/** Registration and matching deliberately share the same security boundary. */
+export function isValidRedirectUri(value: string): boolean {
+  return normalizeRedirectUri(value) !== null;
 }

@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import { registerRedirectTranslations } from "@/lib/oauth/redirect-translations";
 import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
@@ -8,6 +10,7 @@ import { Check, Eye, KeyRound, Loader2, Mail, ShieldCheck, User } from "lucide-r
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
+  addOwnerRedirect,
   describeAuthorizeRequest,
   decideAuthorizeRequest,
   sendStepUpCode,
@@ -110,6 +113,10 @@ function summarize(scopes: string[]): string {
 }
 
 function AuthorizePage() {
+  registerRedirectTranslations();
+  const { t } = useTranslation("oauthRedirect");
+  const addRedirect = useServerFn(addOwnerRedirect);
+  const [repairError, setRepairError] = useState(false);
   const search = Route.useSearch();
   const { user, loading, signOut } = useAuth();
   const describe = useServerFn(describeAuthorizeRequest);
@@ -257,7 +264,21 @@ function AuthorizePage() {
           <p className="mt-4 text-xs text-muted-foreground">
             We sturen je hierbij niet terug naar de app: dat zou onveilig zijn.
           </p>
-          {prompt.debug && <DeveloperDetails debug={prompt.debug} />}
+          {prompt.debug && (
+            <div className="mt-6 space-y-3 break-all text-sm">
+              <p>{t("mismatch", { received: prompt.debug.received, expected: prompt.debug.expected.join(", ") })}</p>
+              <Button disabled={busy} onClick={async () => {
+                setBusy(true);
+                setRepairError(false);
+                try {
+                  await addRedirect({ data: { clientId: payload.clientId, redirectUri: payload.redirectUri } });
+                  setPrompt(await describe({ data: payload }));
+                } catch { setRepairError(true); }
+                finally { setBusy(false); }
+              }}>{t("add")}</Button>
+              {repairError && <p role="alert">{t("failed")}</p>}
+            </div>
+          )}
         </div>
       </main>
     );
@@ -470,25 +491,3 @@ function AuthorizePage() {
   );
 }
 
-function DeveloperDetails({ debug }: { debug: NonNullable<AuthorizePrompt["debug"]> }) {
-  const [open, setOpen] = useState(false);
-  return (
-    <div className="mt-6 text-left">
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        aria-expanded={open}
-        className="mx-auto block text-xs text-muted-foreground underline underline-offset-4 hover:text-foreground"
-      >
-        {open ? "Foutdetails verbergen" : "Foutdetails weergeven (voor ontwikkelaars)"}
-      </button>
-      {open && (
-        <pre className="mt-3 overflow-x-auto whitespace-pre-wrap break-all rounded-xl border border-border bg-muted p-3 font-mono text-xs text-foreground">
-{`Error: ${debug.code}
-Verwacht: ${debug.expected.length ? debug.expected.join("\n          ") : "(geen adressen ingesteld)"}
-Ontvangen in verzoek: ${debug.received}`}
-        </pre>
-      )}
-    </div>
-  );
-}

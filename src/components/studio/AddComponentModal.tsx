@@ -1,3 +1,4 @@
+import { useI18n } from "@/lib/i18n";
 import { getMySnapchat, updateMySnapchat } from "@/lib/snapchat.functions";
 import { useMemo, useState, type ComponentType } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -14,6 +15,7 @@ import { SocialVerifyPanel } from "@/components/dashboard/SocialVerifyPanel";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { isProfileSectionKind } from "@/lib/profile-section-blocks";
 import { BLOCK_KINDS } from "@/lib/profile";
+import { SocialPlatformIcon } from "@/lib/social-icons";
 import { VideoBlockDialog } from "./VideoBlockDialog";
 import { ProUpgradeModal } from "./ProUpgradeModal";
 
@@ -66,7 +68,6 @@ export const COMPONENT_LIBRARY: LibraryGroup[] = [
       { kind: "widget:questions", tag: "community", label: "Anonieme Vragenbox", note: "Laat bezoekers anoniem vragen stellen" },
       { kind: "widget:guestbook", tag: "community", label: "Prikbord / Guestbook", note: "Berichten van leden" },
       { kind: "widget:badges", tag: "profiel", label: "ROUT Badges", note: "Je verdiende badges" },
-      { kind: "widget:reach", tag: "profiel", label: "Totaal Bereik", note: "Je volgers over alle accounts" },
     ],
   },
   {
@@ -143,11 +144,11 @@ interface Props {
 const ALL_ITEMS = COMPONENT_LIBRARY.flatMap((g) => g.items);
 
 /** Alle social platformen: je vult enkel je gebruikersnaam in, de link maken wij. */
-const SOCIAL_KINDS = BLOCK_KINDS.filter((k) => k.category === "socials" || k.category === "featured");
+const SOCIAL_KINDS = BLOCK_KINDS.filter((k) => k.category === "socials" || k.category === "featured" || Boolean(k.tags?.length));
 
 function SocialLogo({ kind }: { kind: string }) {
   const icon = lookupBrandIcon(kind);
-  if (!icon) return <Link2 className="h-6 w-6 text-muted-foreground" aria-hidden />;
+  if (!icon) return <SocialPlatformIcon source={kind} className="h-6 w-6 text-muted-foreground" />;
   return (
     <svg viewBox={icon.viewBox ?? "0 0 24 24"} className="h-6 w-6 shrink-0" aria-hidden style={{ fill: icon.color }}>
       <path d={icon.path} />
@@ -160,6 +161,7 @@ function SocialLogo({ kind }: { kind: string }) {
  * daarna de lijst van die categorie met een filterbalk bovenaan.
  */
 export function AddComponentModal({ open, onClose, onAdd, handle, onWidget }: Props) {
+  const { t } = useI18n();
   const [category, setCategory] = useState<CategoryId | null>(null);
   const [tab, setTab] = useState<string>("suggested");
   const [query, setQuery] = useState("");
@@ -241,11 +243,18 @@ export function AddComponentModal({ open, onClose, onAdd, handle, onWidget }: Pr
 
   const tabs = useMemo(() => {
     const base = [{ id: "suggested", label: "⭐ Aanbevolen" }, { id: "all", label: "Alles" }];
+    if (category === "socials") return [...base, ...[
+      { id: "sovereign", label: t("studio.social.sovereign") },
+      { id: "popular", label: t("studio.social.popular") },
+      { id: "video", label: t("studio.social.video") },
+      { id: "chat", label: t("studio.social.chat") },
+      { id: "work", label: t("studio.social.work") },
+    ]];
     if (category === "live") return [...base, ...LIVE_TABS];
     if (category === "all") return [...base, ...COMPONENT_LIBRARY.map((g) => ({ id: `g:${g.id}`, label: g.title.replace(/^\S+\s/, "") })), { id: "g:live", label: "Status & Feeds" }];
     const seen = [...new Set(libraryPool.map((i) => i.tag).filter((t): t is string => Boolean(t)))];
     return [...base, ...seen.map((t) => ({ id: `t:${t}`, label: TAG_LABELS[t] ?? t }))];
-  }, [category, libraryPool]);
+  }, [category, libraryPool, t]);
 
   const libraryList = libraryPool.filter((i) => {
     if (q) return i.label.toLowerCase().includes(q) || i.note.toLowerCase().includes(q);
@@ -270,7 +279,8 @@ export function AddComponentModal({ open, onClose, onAdd, handle, onWidget }: Pr
 
   const showSocials = category === "socials" || (category === "all" && (Boolean(q) || tab === "all" || tab === "suggested"));
   const socialList = !showSocials ? [] : SOCIAL_KINDS.filter((k) =>
-    !q || k.label.toLowerCase().includes(q) || k.kind.toLowerCase().includes(q),
+    (!q || k.label.toLowerCase().includes(q) || k.kind.toLowerCase().includes(q)) &&
+    (category !== "socials" || tab === "all" || (tab === "suggested" ? k.tags?.includes("popular") || k.tags?.includes("sovereign") : k.tags?.some((tag) => tag === tab))),
   );
   const pickSocial = (kind: string) => {
     close();
@@ -283,6 +293,7 @@ export function AddComponentModal({ open, onClose, onAdd, handle, onWidget }: Pr
     if (item.tag === "socials") return openCategory("socials");
     close();
     if (isProfileSectionKind(item.kind)) { onAdd(item.kind); return; }
+    if (item.kind === "widget:youtube") { onAdd(item.kind); return; }
     if (item.kind.startsWith("widget:")) {
       const id = item.kind.slice(7) as WidgetId;
       if (onWidget) onWidget(id);

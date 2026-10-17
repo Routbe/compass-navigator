@@ -4,7 +4,6 @@ import { AccordionContent, AccordionItem, AccordionTrigger } from "@/components/
 import { ProfileLinksManager } from "@/components/dashboard/editor/ProfileLinksManager";
 import { AddComponentModal, type WidgetId } from "@/components/studio/AddComponentModal";
 import { scheduledBlocks, type ProfileBlock } from "@/lib/profile";
-import type { QuickCreateOption } from "@/types/profile-editor";
 
 interface Props {
   blocks: ProfileBlock[];
@@ -12,7 +11,6 @@ interface Props {
   openBlock: string | null;
   onOpenBlockChange: (id: string | null) => void;
   onOpenAddDrawer: () => void;
-  onQuickCreate: (kind: QuickCreateOption["kind"]) => void;
   /** Voegt een blok van dit type toe en opent het meteen. */
   onAddKind: (kind: string, value?: string) => void;
   /** Extra secties (referrals, QR, badges …) onder de linklijst. */
@@ -35,7 +33,6 @@ export function ProfileContentAccordion({
   openBlock,
   onOpenBlockChange,
   onOpenAddDrawer,
-  onQuickCreate,
   onAddKind,
   children,
   handle,
@@ -79,7 +76,6 @@ export function ProfileContentAccordion({
           openBlock={openBlock}
           onOpenBlockChange={onOpenBlockChange}
           onOpenAddDrawer={onOpenAddDrawer}
-          onQuickCreate={onQuickCreate}
         />
         {children}
       </AccordionContent>

@@ -1,3 +1,5 @@
+import { useI18n } from "@/lib/i18n";
+import { ConsoleTour } from "@/components/console/ConsoleTour";
 import { useState } from "react";
 import { createFileRoute, Link, Outlet, useParams } from "@tanstack/react-router";
 import {
@@ -91,7 +93,7 @@ function GlobalSidebar({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <nav className="space-y-0.5">
       {GLOBAL_NAV.map(({ to, label, icon: Icon, exact }) => (
-        <Link key={to} to={to} onClick={onNavigate} activeOptions={{ exact }} className={itemClass} activeProps={activeClass}>
+        <Link key={to} to={to} data-tour={to === "/developers" ? "docs" : to === "/console/apps" ? "apps" : to === "/console/api" ? "api" : undefined} onClick={onNavigate} activeOptions={{ exact }} className={itemClass} activeProps={activeClass}>
           <Icon className="h-4 w-4" /> {label}
         </Link>
       ))}
@@ -117,6 +119,7 @@ function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
 }
 
 function ConsoleWorkspace() {
+  const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const { data: ws } = useWorkspaceContext();
   const allowed = canUseDeveloperTools(ws?.activeRole ?? null);
@@ -131,8 +134,10 @@ function ConsoleWorkspace() {
             <RoutLogo size={28} />
           </a>
           <span className="hidden border-l border-border pl-3 text-sm text-muted-foreground sm:inline">Developer Console</span>
-          <WorkspaceSwitcher />
+          <WorkspaceSwitcher alwaysShow />
           <div className="ml-auto flex items-center gap-2">
+            {allowed && <ConsoleTour />}
+            <Link to="/settings" data-tour="settings" className="rounded-md p-1.5 hover:bg-muted" aria-label={t("consoleTour.settings.title")}><SlidersHorizontal className="h-4 w-4" /></Link>
             <LanguageToggle className="hidden sm:inline-flex" />
             <ProfileMenu />
           </div>
