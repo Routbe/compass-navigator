@@ -1,3 +1,4 @@
+import i18next from "i18next";
 import { useTranslation } from "react-i18next";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
@@ -22,15 +23,15 @@ import {
 export const Route = createFileRoute("/auth/bluesky")({
   head: () => ({
     meta: [
-      { title: "Je ROUT-account voltooien" },
+      { title: i18next.t("auth.meta.complete") },
       {
         name: "description",
-        content: "Bevestig je e-mailadres met een code om je aanmelding via Bluesky of Mastodon af te ronden.",
+        content: i18next.t("auth.meta.completeDescription"),
       },
-      { property: "og:title", content: "Je ROUT-account voltooien" },
+      { property: "og:title", content: i18next.t("auth.meta.complete") },
       {
         property: "og:description",
-        content: "Bevestig je e-mailadres met een code om je aanmelding via Bluesky of Mastodon af te ronden.",
+        content: i18next.t("auth.meta.completeDescription"),
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

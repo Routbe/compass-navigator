@@ -1,3 +1,4 @@
+import i18next from "i18next";
 import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
@@ -11,16 +12,16 @@ import { captureReferralFromUrl } from "@/lib/referral";
 export const Route = createFileRoute("/signup")({
   head: () => ({
     meta: [
-      { title: "Word lid van ROUT — soevereine digitale identiteit" },
+      { title: i18next.t("auth.meta.signup") },
       {
         name: "description",
         content:
-          "Claim je eigen ROUT-identiteit met stijlvolle QR-codes, korte links en een publiek profiel. Aanmelden duurt één minuut.",
+          i18next.t("auth.meta.signupDescription"),
       },
-      { property: "og:title", content: "Word lid van ROUT" },
+      { property: "og:title", content: i18next.t("auth.meta.signup") },
       {
         property: "og:description",
-        content: "Claim je soevereine digitale identiteit en QR-infrastructuur bij ROUT.",
+        content: i18next.t("auth.meta.signupDescription"),
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

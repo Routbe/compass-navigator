@@ -1,3 +1,4 @@
+import { LocaleDropdown } from "./LocaleDropdown";
 import { Github, Instagram, Linkedin } from "lucide-react";
 import { Link, useLocation } from "@/lib/router-compat";
 import { RoutLogo } from "./RoutLogo";
@@ -93,6 +94,7 @@ export function Footer() {
           {/* Altijd naar de root van de huidige omgeving — nooit een preview-host. */}
           <Link to="/" aria-label="ROUT home" className="inline-flex">
             <RoutLogo size={24} />
+            <LocaleDropdown />
           </Link>
           <p className="max-w-xs text-sm text-muted-foreground">{t("footer.tagline")}</p>
           <div

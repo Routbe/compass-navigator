@@ -23,6 +23,11 @@ import studioEN from "@/locales/studio/en.json";
 import studioFR from "@/locales/studio/fr.json";
 import studioDE from "@/locales/studio/de.json";
 
+import aiNL from "@/locales/ai/nl.json";
+import aiEN from "@/locales/ai/en.json";
+import aiFR from "@/locales/ai/fr.json";
+import aiDE from "@/locales/ai/de.json";
+
 export type Locale = "nl" | "en" | "fr" | "de";
 
 export const LOCALES: Locale[] = ["nl", "en", "fr", "de"];
@@ -47,10 +52,10 @@ export const COOKIE_KEY = "rout_lang";
 type TranslationBundle = Record<string, unknown>;
 
 const RESOURCES: Record<Locale, { translation: TranslationBundle }> = {
-  en: { translation: { ...(en as TranslationBundle), ...(authEN as TranslationBundle), ...(studioEN as TranslationBundle) } },
-  nl: { translation: { ...(nl as TranslationBundle), ...(authNL as TranslationBundle), ...(studioNL as TranslationBundle) } },
-  fr: { translation: { ...(fr as TranslationBundle), ...(authFR as TranslationBundle), ...(studioFR as TranslationBundle) } },
-  de: { translation: { ...(de as TranslationBundle), ...(authDE as TranslationBundle), ...(studioDE as TranslationBundle) } },
+  en: { translation: { ...(en as TranslationBundle), ...(authEN as TranslationBundle), ...(studioEN as TranslationBundle), ...(aiEN as TranslationBundle) } },
+  nl: { translation: { ...(nl as TranslationBundle), ...(authNL as TranslationBundle), ...(studioNL as TranslationBundle), ...(aiNL as TranslationBundle) } },
+  fr: { translation: { ...(fr as TranslationBundle), ...(authFR as TranslationBundle), ...(studioFR as TranslationBundle), ...(aiFR as TranslationBundle) } },
+  de: { translation: { ...(de as TranslationBundle), ...(authDE as TranslationBundle), ...(studioDE as TranslationBundle), ...(aiDE as TranslationBundle) } },
 };
 
 export function isLocale(value: unknown): value is Locale {

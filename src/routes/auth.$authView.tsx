@@ -1,3 +1,4 @@
+import i18next from "i18next";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 
 import AuthNeon from "@/pages/AuthNeon";
@@ -12,15 +13,15 @@ import { isAdminMode } from "@/lib/app-mode";
 export const Route = createFileRoute("/auth/$authView")({
   head: () => ({
     meta: [
-      { title: isAdminMode() ? "Inloggen | ROUT beheerportaal" : "Inloggen of aanmelden bij ROUT" },
+      { title: isAdminMode() ? i18next.t("auth.meta.admin") : i18next.t("auth.meta.signin") },
       {
         name: "description",
-        content: isAdminMode() ? "Beveiligde toegang tot het ROUT beheerportaal." : "Meld je aan of maak een account om je QR-codes en korte links te beheren.",
+        content: isAdminMode() ? i18next.t("auth.meta.adminDescription") : i18next.t("auth.meta.description"),
       },
-      { property: "og:title", content: isAdminMode() ? "Inloggen | ROUT beheerportaal" : "Inloggen of aanmelden bij ROUT" },
+      { property: "og:title", content: isAdminMode() ? i18next.t("auth.meta.admin") : i18next.t("auth.meta.signin") },
       {
         property: "og:description",
-        content: isAdminMode() ? "Beveiligde toegang tot het ROUT beheerportaal." : "Meld je aan of maak een account om je QR-codes en korte links te beheren.",
+        content: isAdminMode() ? i18next.t("auth.meta.adminDescription") : i18next.t("auth.meta.description"),
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

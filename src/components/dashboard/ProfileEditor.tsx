@@ -922,6 +922,7 @@ export function ProfileEditor({ variant = "verified" }: { variant?: ProfileVaria
           {tab === "links" && (
             <Accordion type="single" collapsible className="space-y-3">
               <ProfileBasicInfoAccordion
+                variant={variant}
                 displayName={displayName}
                 onDisplayNameChange={setDisplayName}
                 tagline={tagline}
