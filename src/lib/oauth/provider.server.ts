@@ -1,5 +1,5 @@
 import { routHandleClaim } from "./handle-sync";
-import { cleanRedirectUri, findMatchingRedirect, normalizeRedirectUri, redirectUrisMatch } from "./redirect-match";
+import { isValidRedirectUri, cleanRedirectUri, findMatchingRedirect, normalizeRedirectUri, redirectUrisMatch } from "./redirect-match";
 import { runSchemaEnsure } from "@/lib/db/schema-ensure.server";
 /**
  * "Login met ROUT" — native OAuth 2.1 / OIDC provider.
@@ -103,16 +103,7 @@ export function redirectAllowed(client: OAuthClient, redirectUri: string): boole
 }
 
 /** Alleen https in productie; http uitsluitend voor localhost-ontwikkeling. */
-export function isValidRedirectUri(value: string): boolean {
-  try {
-    const url = new URL(value);
-    if (url.hash) return false;
-    if (url.protocol === "https:") return true;
-    return url.protocol === "http:" && ["localhost", "127.0.0.1"].includes(url.hostname);
-  } catch {
-    return false;
-  }
-}
+export { isValidRedirectUri } from "./redirect-match";
 
 export function issuer(): string {
   // Altijd absoluut (schema + host, zonder afsluitende /) zodat OIDC-clients zoals Keycloak geldige URL's bouwen.
@@ -295,7 +286,7 @@ function sanitize(input: ClientInput) {
   if (!scopes.includes("openid")) scopes.unshift("openid");
   const name = input.name.trim();
   if (!name) throw new OAuthError("invalid_name", "Geef je app een naam.");
-  return { name, uris, scopes };
+  return { name, uris: uris.map((uri) => normalizeRedirectUri(uri)!), scopes };
 }
 
 export async function createClient(

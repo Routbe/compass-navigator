@@ -1,7 +1,7 @@
 import { requireDeveloperAccess } from "@/lib/auth/developer-access";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { cleanRedirectUri, normalizeRedirectUri } from "./redirect-match";
+import { cleanRedirectUri } from "./redirect-match";
 import { optionalAuth, requireAuth } from "@/lib/auth/middleware";
 import { needsStepUp, shareRichIdentity, STRICT_ACR } from "./step-up";
 import { clientSchema, settingsSchema, testUserSchema, verificationRequestSchema } from "./console-schemas";
@@ -345,17 +345,9 @@ async function checkRequest(data: AuthorizeInput) {
   const client = await getClientByClientId(data.clientId);
   if (!client || client.status !== "active") return fail("invalid_client", "Deze app is onbekend bij ROUT.");
   if (!redirectAllowed(client, data.redirectUri)) {
-    console.error(
-      `[OIDC Auth] Redirect URI mismatch for client ${client.clientId}. Allowed URIs in DB: ${JSON.stringify(client.redirectUris)} | Requested: ${JSON.stringify(data.redirectUri)} | Normalized requested: ${JSON.stringify(normalizeRedirectUri(data.redirectUri))}`,
-    );
-    // Only for a known, active client: its registered URIs are already public
-    // through every successful login, so showing them does not leak anything.
-    return fail("invalid_redirect_uri", "Het terugkeeradres van deze app klopt niet.", undefined, {
-      code: "redirect_uri_mismatch",
-      expected: client.redirectUris,
-      received: data.redirectUri,
-    });
+    return fail("invalid_redirect_uri", "Het terugkeeradres van deze app klopt niet.");
   }
+
   const hasPkce = data.codeChallenge.length > 0;
   if (hasPkce && (data.codeChallengeMethod !== "S256" || data.codeChallenge.length < 43)) {
     return fail("invalid_pkce_method", "Deze app moet PKCE met S256 gebruiken.", "invalid_request");
@@ -387,8 +379,11 @@ export const describeAuthorizeRequest = createServerFn({ method: "POST" })
   .handler(async ({ data, context }): Promise<AuthorizePrompt> => {
     const checked = await checkRequest(data);
     if ("error" in checked) {
+      const { getOwnedRedirectMismatch } = await import("./owner-redirect.server");
+      const debug = await getOwnedRedirectMismatch(context.userId, data.clientId, data.redirectUri);
       return {
         ok: false,
+        ...(debug ? { debug } : {}),
         error: checked.error,
         ...("redirectTo" in checked ? { redirectTo: checked.redirectTo } : {}),
         ...("debug" in checked && checked.debug ? { debug: checked.debug } : {}),
@@ -572,4 +567,17 @@ export const verifyStepUp = createServerFn({ method: "POST" })
       missing: "Vraag eerst een code aan.",
     };
     return { ok: state === "ok", error: messages[state] ?? "" };
+  });
+
+/** Explicit owner action; never accepts an owner identity from the browser. */
+export const addOwnerRedirect = createServerFn({ method: "POST" })
+  .middleware([requireAuth])
+  .inputValidator((data: unknown) => z.object({
+    clientId: z.string().min(1).max(100),
+    redirectUri: z.string().min(4).max(2000),
+  }).parse(data))
+  .handler(async ({ data, context }) => {
+    const { addOwnedRedirect } = await import("./owner-redirect.server");
+    await addOwnedRedirect(context.userId, data.clientId, data.redirectUri);
+    return { ok: true };
   });

@@ -21,7 +21,7 @@ import { SocialPlatformIcon } from "@/lib/social-icons";
 import { SocialHandleInput } from "@/components/SocialHandleInput";
 import { isHandleBlock } from "@/lib/social-handles";
 import { cn } from "@/lib/utils";
-import { inputHint, QUICK_CREATE } from "@/lib/profile-editor-utils";
+import { inputHint } from "@/lib/profile-editor-utils";
 import {
   BLOCK_KINDS,
   blockHref,
@@ -44,7 +44,6 @@ import {
   MapBlockSettings,
   PollBlockSettings,
 } from "@/components/dashboard/InteractionBlockSettings";
-import type { QuickCreateOption } from "@/types/profile-editor";
 import { VCardBlockSettings } from "@/components/dashboard/VCardBlockSettings";
 
 interface ProfileLinksManagerProps {
@@ -53,7 +52,6 @@ interface ProfileLinksManagerProps {
   openBlock: string | null;
   onOpenBlockChange: (id: string | null) => void;
   onOpenAddDrawer: () => void;
-  onQuickCreate: (kind: QuickCreateOption["kind"]) => void;
 }
 
 /**
@@ -66,7 +64,6 @@ export function ProfileLinksManager({
   openBlock,
   onOpenBlockChange,
   onOpenAddDrawer,
-  onQuickCreate,
 }: ProfileLinksManagerProps) {
   const dragId = useRef<string | null>(null);
   const [dragging, setDragging] = useState<string | null>(null);
@@ -156,19 +153,6 @@ export function ProfileLinksManager({
         </span>
       </div>
 
-
-      <div className="flex flex-wrap gap-2">
-        {QUICK_CREATE.map((q) => (
-          <button
-            key={q.kind}
-            type="button"
-            onClick={() => onQuickCreate(q.kind)}
-            className="h-8 shrink-0 rounded-full border border-border px-3 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-          >
-            {q.label}
-          </button>
-        ))}
-      </div>
 
       {blocks.length === 0 && (
         <p className="rounded-xl border border-dashed border-border p-6 text-center text-xs text-muted-foreground">

@@ -1,4 +1,4 @@
-import { YouTubeStudioCard } from "@/components/studio/YouTubeStudioCard";
+import { useI18n } from "@/lib/i18n";
 import { isProfileSectionKind, PROFILE_SECTION_LABELS } from "@/lib/profile-section-blocks";
 import { integrationById } from "@/lib/integrations-catalog";
 import { GuestbookAccordion } from "@/components/studio/GuestbookAccordion";
@@ -13,8 +13,8 @@ import { ProfileContentAccordion } from "@/components/studio/ProfileContentAccor
 import { ManualInvoicePanel } from "@/components/dashboard/ManualInvoicePanel";
 import { BillingHistoryPanel } from "@/components/dashboard/BillingHistoryPanel";
 import { ProfileThemePicker } from "@/components/dashboard/editor/ProfileThemePicker";
-import { TABS, QUICK_CREATE, RANGE_OPTIONS } from "@/lib/profile-editor-utils";
-import type { QuickCreateOption, StudioTab } from "@/types/profile-editor";
+import { TABS, RANGE_OPTIONS } from "@/lib/profile-editor-utils";
+import type { StudioTab } from "@/types/profile-editor";
 import {
   BarChart3,
   Check,
@@ -131,7 +131,6 @@ import {
 } from "@/lib/alias-profile.functions";
 import { SubdomainPanel } from "@/components/dashboard/SubdomainPanel";
 import { BadgesPanel } from "@/components/dashboard/BadgesPanel";
-import { TotalReachToggle } from "@/components/studio/LiveIntegrations";
 import { BadgeActivityPanel } from "@/components/dashboard/BadgeActivityPanel";
 import { EmailForwardingPanel } from "@/components/dashboard/EmailForwardingPanel";
 import { EmailAliasDomains } from "@/components/dashboard/EmailAliasDomains";
@@ -149,6 +148,7 @@ export type ProfileVariant = "verified" | "alias";
  * preview alongside, fully decoupled from the QR generator.
  */
 export function ProfileEditor({ variant = "verified" }: { variant?: ProfileVariant } = {}) {
+  const { t } = useI18n();
   const { user } = useAuth();
   const { style: rawUrlStyle, save: saveUrlStylePref } = useUrlStyle();
 
@@ -702,24 +702,6 @@ export function ProfileEditor({ variant = "verified" }: { variant?: ProfileVaria
     }
   }, [query]);
 
-  const quickCreate = (kind: QuickCreateOption["kind"]) => {
-    if (kind === "__socials") {
-      setBlockTab(null);
-      setQuery("");
-      setCat("socials");
-      setDrawer(true);
-      return;
-    }
-    if (kind === "__fediverse") {
-      setBlockTab(null);
-      setQuery("");
-      setCat("featured");
-      setDrawer(true);
-      return;
-    }
-    addBlock(kind);
-  };
-
   const groups = useMemo(() => {
     const q = query.trim().toLowerCase();
     // Curated tab actief → toon alleen de kinds van die tab als één groep.
@@ -969,7 +951,6 @@ export function ProfileEditor({ variant = "verified" }: { variant?: ProfileVaria
                 openBlock={openBlock}
                 onOpenBlockChange={setOpenBlock}
                 onOpenAddDrawer={() => setDrawer(true)}
-                onQuickCreate={quickCreate}
                 onAddKind={(kind, value) => addBlock(kind, value)}
                 handle={normalized || handle}
                 onWidget={(id) => {
@@ -979,29 +960,19 @@ export function ProfileEditor({ variant = "verified" }: { variant?: ProfileVaria
                   } else if (id === "badges") {
                     setPref("badgeShowcaseVisible", true);
                     toast.success("ROUT Badges staan aan op je profiel");
-                  } else if (id === "reach") {
-                    document.getElementById("studio-total-reach")?.scrollIntoView({ behavior: "smooth", block: "center" });
+                  } else if (id === "youtube") {
+                    addBlock("widget:youtube");
                   } else {
                     toast.info("Het Prikbord staat altijd op je profiel; beheer berichten bij Prikbord in de Studio");
                   }
                 }}
               >
 
-                  <YouTubeStudioCard />
-
-                  <section id="studio-total-reach" className="space-y-3 rounded-2xl border border-border bg-card p-4 sm:p-5">
-                    <h2 className="text-lg font-medium">Totaal bereik</h2>
-                    <p className="text-sm text-muted-foreground">
-                      Toon één badge met je totale volgersaantal over al je gekoppelde accounts.
-                    </p>
-                    <TotalReachToggle />
-                  </section>
-
                 {/* 🏅 Badges: eigen map binnen Links & componenten, met schakelaar. */}
-                <section className="space-y-3 rounded-2xl border border-border bg-card p-4 sm:p-5">
+                <details className="space-y-3 rounded-2xl border border-border bg-card p-4 sm:p-5">
+                  <summary className="cursor-pointer text-lg font-medium">{t("studio.badgesFolder")}</summary>
                   <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0">
-                      <h2 className="text-lg font-medium">🏅 ROUT Badges</h2>
                       <p className="mt-1 text-sm text-muted-foreground">
                         Je badges verschijnen automatisch onder je profielkop. Zet ze hier uit als
                         je liever een kale pagina hebt.
@@ -1015,7 +986,7 @@ export function ProfileEditor({ variant = "verified" }: { variant?: ProfileVaria
                   </div>
                   <BadgesPanel />
                   <BadgeActivityPanel />
-                </section>
+                </details>
               </ProfileContentAccordion>
 
               {/* Favorieten horen bij je links: film, serie, boek, muziek … */}

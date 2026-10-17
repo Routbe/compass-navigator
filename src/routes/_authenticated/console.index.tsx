@@ -1,3 +1,4 @@
+import { useI18n } from "@/lib/i18n";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowUpRight, Blocks, Bot, KeyRound, ReceiptText } from "lucide-react";
 import { ConsolePage } from "@/components/console/ConsolePage";
@@ -22,11 +23,13 @@ export const Route = createFileRoute("/_authenticated/console/")({
 });
 
 function ConsoleHome() {
+  const { t } = useI18n();
   return <ConsolePage title="Welcome to ROUT Console" description="Build secure identity and platform integrations from one focused workspace.">
     <div>
       <p className="mb-4 text-xs font-semibold uppercase text-muted-foreground">Quick Access</p>
+      <Link to="/developers" data-tour="docs" className="mb-4 inline-flex text-sm text-primary underline underline-offset-4">{t("consoleTour.docs.title")}</Link>
       <div className="grid gap-4 md:grid-cols-2">
-        {CARDS.map(({ to, title, kicker, text, icon: Icon }) => <Link key={to} to={to} className="group min-h-52 border border-border bg-card p-6 transition-colors hover:border-foreground/40 hover:bg-muted/30">
+        {CARDS.map(({ to, title, kicker, text, icon: Icon }) => <Link key={to} to={to} data-tour={to === "/console/apps" ? "apps" : to === "/console/api" ? "api" : undefined} className="group min-h-52 border border-border bg-card p-6 transition-colors hover:border-foreground/40 hover:bg-muted/30">
           <div className="flex items-start justify-between"><Icon className="h-6 w-6" /><ArrowUpRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" /></div>
           <p className="mt-10 text-xs font-medium uppercase text-muted-foreground">{kicker}</p>
           <h2 className="mt-2 text-xl font-semibold">{title}</h2>
