@@ -57,23 +57,8 @@ export async function listSocialLinks(profileId: string): Promise<SocialLinkDTO[
 
 /** Gecachte, publieke lijst voor de profielpagina — 0 externe HTTP-calls. */
 export async function readPublicSocialLinks(profileId: string) {
-  const rows = (await sql`
-    select platform, username, follower_count, is_verified
-      from public.social_links
-     where profile_id = ${profileId} and is_verified = true
-     order by position asc, created_at asc
-  `) as Row[];
-  return rows.map((row) => {
-    const platform = row["platform"] as SocialPlatform;
-    const username = row["username"] as string;
-    return {
-      platform,
-      username,
-      url: socialProfileUrl(platform, username),
-      followerCount: (row["follower_count"] as number | null) ?? null,
-      isVerified: true,
-    };
-  });
+  const { readSocialBlockLinks } = await import("./social-block.server");
+  return readSocialBlockLinks(profileId);
 }
 
 /* ----------------------------------------------------------------- writes */
@@ -191,6 +176,8 @@ export async function fetchSnapshot(platform: SocialPlatform, username: string):
   if (platform === "mastodon" || platform === "wsocial") {
     const [localHandle, host] = handle.split("@");
     const instance = host || (platform === "wsocial" ? "w.social" : "mastodon.social");
+    const { isPublicHost } = await import("./open-web-rules");
+    if (!isPublicHost(instance)) throw new Error("invalid_host");
     const account = await fetchJson<{
       note?: string;
       fields?: { name: string; value: string }[];

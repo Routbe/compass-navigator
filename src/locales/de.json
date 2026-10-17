@@ -1494,5 +1494,15 @@
   "workspace.role.owner": "Inhaber",
   "workspace.role.admin": "Administrator",
   "workspace.role.developer": "Entwickler",
-  "workspace.role.editor": "Redakteur"
+  "workspace.role.editor": "Redakteur",
+  "socialBlock": {
+    "settings": "Weitere Einstellungen",
+    "connect": "Konto verbinden",
+    "verified": "Verifiziert",
+    "followers": "Followerzahl anzeigen",
+    "unavailable": "Für diese Plattform noch nicht verfügbar.",
+    "bioHint": "Füge deinen ROUT-Profillink zur Biografie hinzu. Wir prüfen ihn auf der Plattform.",
+    "failed": "Verbindung oder Speichern fehlgeschlagen. Prüfe deine Biografie und versuche es erneut.",
+    "snapHint": "Snapchat teilt keinen Benutzernamen: Eine Verbindung bestätigt daher nicht den eingegebenen Namen."
+  }
 }

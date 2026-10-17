@@ -1494,5 +1494,15 @@
   "workspace.role.owner": "Eigenaar",
   "workspace.role.admin": "Beheerder",
   "workspace.role.developer": "Ontwikkelaar",
-  "workspace.role.editor": "Editor"
+  "workspace.role.editor": "Editor",
+  "socialBlock": {
+    "settings": "Extra instellingen",
+    "connect": "Koppel je account",
+    "verified": "Geverifieerd",
+    "followers": "Aantal volgers tonen",
+    "unavailable": "Nog niet beschikbaar voor dit platform.",
+    "bioHint": "Plaats eerst de link naar je ROUT-profiel in je bio. We controleren deze op het platform.",
+    "failed": "Koppelen of opslaan mislukt. Controleer je bio en probeer opnieuw.",
+    "snapHint": "Snapchat deelt geen gebruikersnaam: koppelen bewijst daarom niet de ingevoerde handle."
+  }
 }

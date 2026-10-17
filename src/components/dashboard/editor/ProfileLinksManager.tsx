@@ -1,3 +1,4 @@
+import { SocialBlockSettings } from "@/components/studio/SocialBlockSettings";
 import { type Dispatch, type SetStateAction, useRef, useState } from "react";
 import {
   ArrowDown,
@@ -333,6 +334,7 @@ export function ProfileLinksManager({
                         Enter just your handle — paste a full link and we extract the username
                         automatically.
                       </p>
+                      <SocialBlockSettings platform={b.kind} handle={b.value} />
                     </>
                   ) : (
                     <>

@@ -5,7 +5,7 @@ export async function readSocialBlockLinks(profileId: string): Promise<PublicSoc
   const rows = await sql`
     select platform, username, follower_count from public.social_links where profile_id = ${profileId} and is_verified = true
     union all
-    select provider as platform, handle as username, coalesce(follower_count_auto, follower_count_manual) as follower_count
+    select provider as platform, handle as username, coalesce(follower_count, manual_follower_count) as follower_count
     from public.user_integrations where user_id = ${profileId} and verified = true
       and (provider <> 'youtube' or connection_status = 'connected')`;
   const settings = await sql`select platform, handle, show_followers from public.social_block_settings where profile_id = ${profileId}`;
@@ -25,6 +25,7 @@ export async function socialBlockStatus(userId: string, platform: string, handle
     if (identities[platform] && socialHandleKey(identities[platform]) === socialHandleKey(handle)) {
       const existing = await sql`select provider from public.user_integrations where user_id = ${userId} and provider = ${platform}`;
       if (!existing.length) await saveMine(userId, { provider: platform, handle, audience: "both", visible: false });
+      else await sql`update public.user_integrations set verified = true, verified_via = 'sso' where user_id = ${userId} and provider = ${platform} and lower(trim(leading '@' from handle)) = ${socialHandleKey(handle)}`;
     }
   }
   const links = await readSocialBlockLinks(userId);

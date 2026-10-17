@@ -1,3 +1,4 @@
+import { socialHandleKey } from "@/lib/social-block-rules";
 import { useTranslation } from "react-i18next";
 import { ProfileYouTubeCard } from "@/components/profile/YouTubeCard";
 import { isProfileSectionKind, usesSectionFallback } from "@/lib/profile-section-blocks";
@@ -722,7 +723,12 @@ export function ProfileView({
                   />
                 )}
                 {!iconOnly && <span className="min-w-0 flex-1 truncate text-center">{b.label}</span>}
-                {!iconOnly && <span className="h-4 w-4 shrink-0" aria-hidden />}
+                {(profile.social_links ?? []).filter(link => link.isVerified && link.platform === b.kind && socialHandleKey(link.username) === socialHandleKey(b.value)).slice(0, 1).map(link => (
+                  <span key={link.platform} className="inline-flex items-center gap-1 text-emerald-500">
+                    <BadgeCheck className="h-4 w-4" aria-label={profileText(locale, "verified")} />
+                    {link.followerCount !== null && <span className="text-xs">{formatFollowers(link.followerCount)}</span>}
+                  </span>
+                ))}
               </a>
             ),
           )}
