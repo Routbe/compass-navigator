@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import type { CSSProperties } from "react";
 import { MapPin } from "lucide-react";
 
@@ -5,6 +6,7 @@ import { mapEmbedUrl, mapExternalUrl, type MapConfig } from "@/lib/interactions"
 
 /** Publieke kaart-embed met directe routebeschrijving. */
 export function MapCard({ config, style }: { config: MapConfig; style?: CSSProperties }) {
+  const { t } = useTranslation();
   const address = config.address.trim();
   if (!address) return null;
 
@@ -30,8 +32,7 @@ export function MapCard({ config, style }: { config: MapConfig; style?: CSSPrope
           rel="noopener noreferrer"
           className="inline-flex w-full items-center justify-center rounded-xl border border-border px-3 py-2 text-xs font-medium transition-opacity hover:opacity-80"
         >
-          📍 Routebeschrijving openen
-        </a>
+           {t("profile.directions")} </a>
       </div>
     </div>
   );

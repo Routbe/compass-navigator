@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { BadgeCheck, QrCode } from "lucide-react";
@@ -73,6 +74,7 @@ export function filterItem(item: Item, selected: string[] | undefined): Item {
 }
 
 function DuolingoCard({ item, theme }: { item: Item; theme: Theme }) {
+  const { t } = useTranslation();
   const meta = integrationById(item.provider);
   const d = item.status?.duolingo;
   if (!d) return null;
@@ -84,10 +86,10 @@ function DuolingoCard({ item, theme }: { item: Item; theme: Theme }) {
       <span className="min-w-0 flex-1 text-left">
         <span className="block text-[10px] uppercase tracking-wider" style={{ color: theme.muted }}>{meta?.label}</span>
         <span className="block truncate text-sm font-medium">
-          {d.streak != null ? <>🔥 {d.streak} {d.streak === 1 ? "dag" : "dagen"} streak</> : item.status?.title ?? item.handle}
+          {d.streak != null ? <>🔥 {d.streak} {d.streak === 1 ? t("profile.day") : t("profile.days")}  {t("profile.streak")} </> : item.status?.title ?? item.handle}
         </span>
         <span className="mt-0.5 flex flex-wrap gap-1.5 text-[11px] tabular-nums" style={{ color: theme.muted }}>
-          {d.languageName ? <span>Leert momenteel {d.languageName}</span> : null}
+          {d.languageName ? <span> {t("profile.currentlyLearning")} {d.languageName}</span> : null}
           {d.totalXp != null ? <span className="rounded px-1.5" style={{ border: `1px solid ${theme.border}` }}>{d.totalXp.toLocaleString("nl-NL")} XP</span> : null}
         </span>
       </span>
@@ -96,6 +98,7 @@ function DuolingoCard({ item, theme }: { item: Item; theme: Theme }) {
 }
 
 function ChessCard({ item, theme }: { item: Item; theme: Theme }) {
+  const { t } = useTranslation();
   const meta = integrationById(item.provider);
   const c = item.status?.chess ?? {};
   const img = proxied(item.status?.image);
@@ -111,7 +114,7 @@ function ChessCard({ item, theme }: { item: Item; theme: Theme }) {
           </span>
         )}
         {online && (
-          <span className="absolute -right-0.5 -top-0.5 flex h-3 w-3" aria-label="Nu online" title="Nu online">
+          <span className="absolute -right-0.5 -top-0.5 flex h-3 w-3" aria-label={t("profile.onlineNow")} title={t("profile.onlineNow")}>
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-75" />
             <span className="relative inline-flex h-3 w-3 rounded-full border-2 bg-emerald-500" style={{ borderColor: theme.card }} />
           </span>
@@ -120,7 +123,7 @@ function ChessCard({ item, theme }: { item: Item; theme: Theme }) {
       <span className="min-w-0 flex-1 text-left">
         <span className="flex items-center gap-1 text-[10px] uppercase tracking-wider" style={{ color: theme.muted }}>
           {meta?.label}
-          {online && <span className="normal-case tracking-normal text-emerald-500">· online</span>}
+          {online && <span className="normal-case tracking-normal text-emerald-500"> {t("profile.onlineSuffix")} </span>}
         </span>
         <span className="block truncate text-sm font-medium">{item.status?.title ?? item.handle}</span>
         <span className="mt-0.5 flex gap-1.5 text-[11px] tabular-nums" style={{ color: theme.muted }}>
@@ -136,19 +139,19 @@ function ChessCard({ item, theme }: { item: Item; theme: Theme }) {
           className="shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition-opacity hover:opacity-80"
           style={{ background: theme.text, color: theme.card }}
         >
-          Uitdagen
-        </a>
+           {t("profile.challenge")} </a>
       )}
     </div>
   );
 }
 
 function FeedCard({ item, theme }: { item: Item; theme: Theme }) {
+  const { t } = useTranslation();
   const posts = item.status?.posts ?? [];
   return (
     <div className="rounded-2xl p-3 text-left" style={{ background: theme.card, border: `1px solid ${theme.border}`, color: theme.text }}>
       <span className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider" style={{ color: theme.muted }}>
-        <BrandIcon icon="siRss" className="h-3 w-3" /> Laatste posts · {item.status?.title}
+        <BrandIcon icon="siRss" className="h-3 w-3" />  {t("profile.latestPosts")} {item.status?.title}
       </span>
       <ul className="mt-2 space-y-1.5">
         {posts.map((p) => (
@@ -165,11 +168,12 @@ function FeedCard({ item, theme }: { item: Item; theme: Theme }) {
 }
 
 function VideoCard({ item, theme }: { item: Item; theme: Theme }) {
+  const { t } = useTranslation();
   const videos = item.status?.videos ?? [];
   return (
     <div className="rounded-2xl p-3 text-left" style={{ background: theme.card, border: `1px solid ${theme.border}`, color: theme.text }}>
       <a href={item.status?.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider hover:opacity-80" style={{ color: theme.muted }}>
-        <BrandIcon icon="siYoutube" className="h-3 w-3" /> Nieuwste video's · {item.status?.title}
+        <BrandIcon icon="siYoutube" className="h-3 w-3" />  {t("profile.latestVideos")} {item.status?.title}
       </a>
       <ul className="mt-2 space-y-2">
         {videos.map((v) => {
@@ -196,6 +200,7 @@ function VideoCard({ item, theme }: { item: Item; theme: Theme }) {
 }
 
 function Card({ item, theme }: { item: Item; theme: Theme }) {
+  const { t } = useTranslation();
   if (item.status?.duolingo) return <DuolingoCard item={item} theme={theme} />;
   if (item.status?.chess) return <ChessCard item={item} theme={theme} />;
   if (item.status?.videos?.length) return <VideoCard item={item} theme={theme} />;
@@ -216,9 +221,9 @@ function Card({ item, theme }: { item: Item; theme: Theme }) {
       <span className="min-w-0 flex-1 text-left">
         <span className="flex items-center gap-1 text-[10px] uppercase tracking-wider" style={{ color: theme.muted }}>
           {meta?.label ?? item.provider}
-          {item.verified && <BadgeCheck className="h-3.5 w-3.5 text-primary" aria-label="Geverifieerd account" />}
+          {item.verified && <BadgeCheck className="h-3.5 w-3.5 text-primary" aria-label={t("profile.verifiedAccount")} />}
         </span>
-        <span className="block truncate text-sm font-medium">{pay ? "Steun mij" : item.status?.title ?? item.handle}</span>
+        <span className="block truncate text-sm font-medium">{pay ? t("profile.supportMe") : item.status?.title ?? item.handle}</span>
         <span className="block truncate text-xs" style={{ color: theme.muted }}>
           {pay ? item.handle : item.status?.subtitle ?? ""}
         </span>
@@ -246,8 +251,7 @@ function Card({ item, theme }: { item: Item; theme: Theme }) {
               <QRCodeSVG value={pay} size={160} />
             </div>
             <a href={pay} className="text-xs underline" style={{ color: theme.text }}>
-              Open in wallet
-            </a>
+               {t("profile.openWallet")} </a>
           </div>
         )}
       </div>

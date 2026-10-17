@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useState, type CSSProperties, type FormEvent } from "react";
 import { Loader2, Mail } from "lucide-react";
 import { toast } from "sonner";
@@ -17,6 +18,7 @@ export function ContactFormCard({
   config: ContactFormConfig;
   style?: CSSProperties;
 }) {
+  const { t } = useTranslation();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
@@ -45,7 +47,7 @@ export function ContactFormCard({
         toast.error(res.message);
       }
     } catch {
-      toast.error("Versturen lukte niet. Probeer het later opnieuw.");
+      toast.error(t("profile.sendFailedRetry"));
     } finally {
       setBusy(false);
     }
@@ -69,31 +71,31 @@ export function ContactFormCard({
           {config.nameField && (
             <input
               className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground"
-              placeholder="Je naam"
+              placeholder={t("profile.yourName")}
               maxLength={120}
               value={name}
               onChange={(e) => setName(e.target.value)}
-              aria-label="Naam"
+              aria-label={t("profile.name")}
             />
           )}
           <input
             type="email"
             required
             className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground"
-            placeholder="jij@voorbeeld.be"
+            placeholder={t("profile.emailExample")}
             maxLength={200}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            aria-label="E-mailadres"
+            aria-label={t("profile.email")}
           />
           {config.messageField && (
             <textarea
               className="min-h-20 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground"
-              placeholder="Je bericht…"
+              placeholder={t("profile.yourMessage")}
               maxLength={CONTACT_MESSAGE_MAX}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              aria-label="Bericht"
+              aria-label={t("profile.message")}
             />
           )}
           <Altcha />
@@ -103,8 +105,7 @@ export function ContactFormCard({
             className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-foreground px-4 py-2.5 text-sm font-medium text-background transition-opacity hover:opacity-90 disabled:opacity-50"
           >
             {busy && <Loader2 className="h-4 w-4 animate-spin" aria-hidden />}
-            Versturen
-          </button>
+             {t("profile.send")} </button>
         </form>
       )}
     </div>

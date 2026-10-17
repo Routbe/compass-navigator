@@ -120,7 +120,7 @@ export function ExploreGallery({ cards, filters = false }: { cards: ShowcaseCard
                 </div>
               </div>
               {(c.tagline || c.bio) && (
-                 <p className={cn("text-sm", big ? "line-clamp-2" : "line-clamp-1")} data-x=" leading-relaxed text-muted-foreground">
+                 <p className={cn("text-sm leading-relaxed text-muted-foreground", big ? "line-clamp-2" : "line-clamp-1")}>
                   {c.tagline || c.bio}
                 </p>
               )}

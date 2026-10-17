@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -19,6 +20,7 @@ const MESSAGES: Record<string, string> = {
 
 /** Prikbord: pinned notes for everyone, a note form for signed-in members. */
 export function ProfileGuestbook({ handle, theme }: { handle: string; theme: Theme }) {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const post = useServerFn(postGuestbookNote);
   const q = useQuery({ queryKey: ["guestbook", handle], queryFn: () => getPinnedNotes({ data: { handle } }), staleTime: 60_000 });
@@ -34,20 +36,19 @@ export function ProfileGuestbook({ handle, theme }: { handle: string; theme: The
       const { result } = await post({ data: { handle, body } });
       if (result === "ok") {
         setBody("");
-        toast.success("Bericht verstuurd", { description: "De eigenaar kan het op het prikbord pinnen." });
-      } else toast.error(MESSAGES[result] ?? "Versturen mislukt");
+        toast.success(t("profile.messageSent"), { description: t("profile.ownerCanPin") });
+      } else toast.error(MESSAGES[result] ?? t("profile.sendFailed"));
     } catch {
-      toast.error("Versturen mislukt");
+      toast.error(t("profile.sendFailed"));
     } finally {
       setBusy(false);
     }
   };
 
   return (
-    <section className="mt-4 w-full max-w-sm rounded-2xl p-3 text-left" style={{ background: theme.card, border: `1px solid ${theme.border}`, color: theme.text }} aria-label="Prikbord">
+    <section className="mt-4 w-full max-w-sm rounded-2xl p-3 text-left" style={{ background: theme.card, border: `1px solid ${theme.border}`, color: theme.text }} aria-label={t("profile.guestbookTitle")}>
       <h2 className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider" style={{ color: theme.muted }}>
-        <Pin className="h-3 w-3" aria-hidden /> Prikbord
-      </h2>
+        <Pin className="h-3 w-3" aria-hidden />  {t("profile.guestbookTitle")} </h2>
       {notes.length > 0 && (
         <ul className="mt-2 grid gap-2 sm:grid-cols-2">
           {notes.map((n, i) => (
@@ -65,22 +66,20 @@ export function ProfileGuestbook({ handle, theme }: { handle: string; theme: The
             onChange={(e) => setBody(e.target.value.slice(0, GUESTBOOK_MAX))}
             maxLength={GUESTBOOK_MAX}
             rows={2}
-            placeholder="Laat een berichtje achter…"
-            aria-label="Bericht voor het prikbord"
+            placeholder={t("profile.leaveMessage")}
+            aria-label={t("profile.guestbookMessage")}
             className="w-full resize-none rounded-lg bg-transparent px-2.5 py-1.5 text-sm outline-none"
             style={{ border: `1px solid ${theme.border}` }}
           />
           <span className="flex items-center justify-between text-[11px]" style={{ color: theme.muted }}>
             {body.length}/{GUESTBOOK_MAX}
             <button type="submit" disabled={busy || !body.trim()} className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold disabled:opacity-50" style={{ background: theme.text, color: theme.card }}>
-              {busy && <Loader2 className="h-3 w-3 animate-spin" />} Plaatsen
-            </button>
+              {busy && <Loader2 className="h-3 w-3 animate-spin" />}  {t("profile.post")} </button>
           </span>
         </form>
       ) : (
         <p className="mt-2 text-xs" style={{ color: theme.muted }}>
-          <Link to="/auth" className="underline">Log in met je ROUT-account</Link> om een berichtje achter te laten.
-        </p>
+          <Link to="/auth" className="underline"> {t("profile.loginRout")} </Link>  {t("profile.toLeaveMessage")} </p>
       )}
     </section>
   );

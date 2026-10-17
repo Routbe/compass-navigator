@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -16,6 +17,7 @@ const MESSAGES: Record<string, string> = {
 
 /** Anonymous inbox: anyone can ask; answered questions show as Q&A. */
 export function ProfileQuestions({ handle, theme }: { handle: string; theme: Theme }) {
+  const { t } = useTranslation();
   const ask = useServerFn(askAnonymousQuestion);
   const q = useQuery({ queryKey: ["questions", handle], queryFn: () => getPublishedQuestions({ data: { handle } }), staleTime: 60_000 });
   const [body, setBody] = useState("");
@@ -30,36 +32,34 @@ export function ProfileQuestions({ handle, theme }: { handle: string; theme: The
       const { result } = await ask({ data: { handle, body } });
       if (result === "ok") {
         setBody("");
-        toast.success("Anoniem verstuurd", { description: "Als er geantwoord wordt, verschijnt het hier." });
-      } else toast.error(MESSAGES[result] ?? "Versturen mislukt");
+        toast.success(t("profile.sentAnonymously"), { description: t("profile.answerAppears") });
+      } else toast.error(MESSAGES[result] ?? t("profile.sendFailed"));
     } catch {
-      toast.error("Versturen mislukt");
+      toast.error(t("profile.sendFailed"));
     } finally {
       setBusy(false);
     }
   };
 
   return (
-    <section className="mt-4 w-full max-w-sm rounded-2xl p-3 text-left" style={{ background: theme.card, border: `1px solid ${theme.border}`, color: theme.text }} aria-label="Anonieme vragen">
+    <section className="mt-4 w-full max-w-sm rounded-2xl p-3 text-left" style={{ background: theme.card, border: `1px solid ${theme.border}`, color: theme.text }} aria-label={t("profile.anonymousQuestions")}>
       <h2 className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider" style={{ color: theme.muted }}>
-        <MessageCircleQuestion className="h-3 w-3" aria-hidden /> Vraag me iets
-      </h2>
+        <MessageCircleQuestion className="h-3 w-3" aria-hidden />  {t("profile.askMe")} </h2>
       <form onSubmit={submit} className="mt-2 flex flex-col gap-1.5">
         <textarea
           value={body}
           onChange={(e) => setBody(e.target.value.slice(0, QUESTION_MAX))}
           maxLength={QUESTION_MAX}
           rows={2}
-          placeholder="Stuur mij anoniem een bericht of vraag…"
-          aria-label="Anonieme vraag"
+          placeholder={t("profile.anonymousPlaceholder")}
+          aria-label={t("profile.anonymousQuestion")}
           className="w-full resize-none rounded-lg bg-transparent px-2.5 py-1.5 text-sm outline-none"
           style={{ border: `1px solid ${theme.border}` }}
         />
         <span className="flex items-center justify-between text-[11px]" style={{ color: theme.muted }}>
-          100% anoniem · {body.length}/{QUESTION_MAX}
+           {t("profile.fullyAnonymous")} {body.length}/{QUESTION_MAX}
           <button type="submit" disabled={busy || !body.trim()} className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold disabled:opacity-50" style={{ background: theme.text, color: theme.card }}>
-            {busy && <Loader2 className="h-3 w-3 animate-spin" />} Verstuur
-          </button>
+            {busy && <Loader2 className="h-3 w-3 animate-spin" />}  {t("profile.sendQuestion")} </button>
         </span>
       </form>
       {items.length > 0 && (

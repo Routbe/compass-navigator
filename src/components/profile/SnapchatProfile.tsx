@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { getPublicSnapchat } from "@/lib/snapchat.functions";
@@ -7,6 +8,7 @@ type T = { card: string; border: string; text: string; muted: string };
 
 /** Public Snapchat card + manual mood widget (opt-in, no location). */
 export function SnapchatProfile({ handle, theme }: { handle: string; theme: T }) {
+  const { t } = useTranslation();
   const fetchSnap = useServerFn(getPublicSnapchat);
   const { data } = useQuery({ queryKey: ["public-snapchat", handle], queryFn: () => fetchSnap({ data: { handle } }), staleTime: 60_000 });
   if (!data) return null;
@@ -29,7 +31,7 @@ export function SnapchatProfile({ handle, theme }: { handle: string; theme: T })
           )}
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-semibold">{data.card.displayName ?? "Snapchat"}</p>
-            <p className="text-xs" style={{ color: theme.muted }}>✓ Geverifieerd via Snapchat</p>
+            <p className="text-xs" style={{ color: theme.muted }}> {t("profile.snapchatVerified")} </p>
           </div>
         </div>
       )}

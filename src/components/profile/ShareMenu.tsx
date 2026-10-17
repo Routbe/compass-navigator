@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useMemo, useRef, useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 import { useServerFn } from "@tanstack/react-start";
@@ -33,6 +34,7 @@ type Props = {
 
 /** "Deel" menu: copy link, QR, business card (PNG/PDF) and the NFC waitlist teaser. */
 export function ShareMenu({ url, handle, name, bio, avatarUrl, showNfc, qrStyle, className, style }: Props) {
+  const { t } = useTranslation();
   const qrRef = useRef<HTMLCanvasElement>(null);
   const [nfcOpen, setNfcOpen] = useState(false);
   const [qrOpen, setQrOpen] = useState(false);
@@ -46,9 +48,9 @@ export function ShareMenu({ url, handle, name, bio, avatarUrl, showNfc, qrStyle,
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(url);
-      toast.success("Link gekopieerd");
+      toast.success(t("profile.linkCopied"));
     } catch {
-      toast.error("Kopiëren lukte niet");
+      toast.error(t("profile.copyFailed"));
     }
   };
   const downloadQr = () => {
@@ -64,7 +66,7 @@ export function ShareMenu({ url, handle, name, bio, avatarUrl, showNfc, qrStyle,
     a.click();
   };
   const run = (fn: () => Promise<void>) => () =>
-    void fn().catch(() => toast.error("Genereren mislukt"));
+    void fn().catch(() => toast.error(t("profile.generationFailed")));
 
   return (
     <>
@@ -76,32 +78,26 @@ export function ShareMenu({ url, handle, name, bio, avatarUrl, showNfc, qrStyle,
             className={cn("inline-flex h-9 items-center gap-1.5 rounded-xl border border-border px-3 text-xs font-medium transition-colors hover:bg-muted", className)}
             style={style}
           >
-            <Share2 className="h-3.5 w-3.5" aria-hidden /> Deel
-          </button>
+            <Share2 className="h-3.5 w-3.5" aria-hidden />  {t("profile.shareLabel")} </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-60">
-          <DropdownMenuItem onSelect={() => setQrOpen(true)} className="justify-center p-3" aria-label="Toon QR-code op volledig scherm">
+          <DropdownMenuItem onSelect={() => setQrOpen(true)} className="justify-center p-3" aria-label={t("profile.fullscreenQr")}>
             <img src={svgSrc} alt={`QR-code voor ${handle}`} className="h-28 w-28 rounded-lg" />
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onSelect={() => void copy()}>
-            <Copy className="mr-2 h-4 w-4" aria-hidden /> Kopieer link
-          </DropdownMenuItem>
+            <Copy className="mr-2 h-4 w-4" aria-hidden />  {t("profile.copyLink")} </DropdownMenuItem>
           <DropdownMenuItem onSelect={downloadQrPng}>
-            <QrCode className="mr-2 h-4 w-4" aria-hidden /> Download QR-code
-          </DropdownMenuItem>
+            <QrCode className="mr-2 h-4 w-4" aria-hidden />  {t("profile.downloadQr")} </DropdownMenuItem>
           <DropdownMenuItem onSelect={run(() => downloadCardPng(card()))}>
-            <ImageDown className="mr-2 h-4 w-4" aria-hidden /> Visitekaartje als afbeelding
-          </DropdownMenuItem>
+            <ImageDown className="mr-2 h-4 w-4" aria-hidden />  {t("profile.cardImage")} </DropdownMenuItem>
           <DropdownMenuItem onSelect={run(() => downloadCardPdf(card()))}>
-            <FileDown className="mr-2 h-4 w-4" aria-hidden /> Visitekaartje als PDF
-          </DropdownMenuItem>
+            <FileDown className="mr-2 h-4 w-4" aria-hidden />  {t("profile.cardPdf")} </DropdownMenuItem>
           {showNfc && (
             <>
               <DropdownMenuSeparator />
               <DropdownMenuItem onSelect={() => setNfcOpen(true)} className="font-medium">
-                <Nfc className="mr-2 h-4 w-4" aria-hidden /> Bestel NFC Visitekaartje
-              </DropdownMenuItem>
+                <Nfc className="mr-2 h-4 w-4" aria-hidden />  {t("profile.orderNfc")} </DropdownMenuItem>
             </>
           )}
         </DropdownMenuContent>
@@ -110,8 +106,8 @@ export function ShareMenu({ url, handle, name, bio, avatarUrl, showNfc, qrStyle,
       <Dialog open={qrOpen} onOpenChange={setQrOpen}>
         <DialogContent className="flex max-h-[100dvh] w-[100vw] max-w-[100vw] flex-col items-center justify-center gap-4 border-0 sm:max-w-[min(90vw,90vh)] sm:rounded-2xl">
           <DialogHeader className="sr-only">
-            <DialogTitle>QR-code</DialogTitle>
-            <DialogDescription>Scan om het profiel van @{handle} te openen.</DialogDescription>
+            <DialogTitle> {t("profile.qrCode")} </DialogTitle>
+            <DialogDescription> {t("profile.scanProfilePrefix")} {handle}  {t("profile.scanProfileSuffix")} </DialogDescription>
           </DialogHeader>
           <img src={svgSrc} alt={`QR-code voor ${handle}`} className="aspect-square w-full max-w-[min(90vw,80dvh)] rounded-xl" />
           <p className="text-sm font-medium">@{handle}</p>
@@ -126,12 +122,13 @@ export function ShareMenu({ url, handle, name, bio, avatarUrl, showNfc, qrStyle,
 }
 
 const MATERIALS = [
-  { id: "wood", label: "Hout" },
-  { id: "metal", label: "Metaal" },
-  { id: "matte_black", label: "Mat zwart" },
+  { id: "wood", label: "profile.wood" },
+  { id: "metal", label: "profile.metal" },
+  { id: "matte_black", label: "profile.matteBlack" },
 ] as const;
 
 function NfcDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
+  const { t } = useTranslation();
   const join = useServerFn(joinNfcWaitlist);
   const [material, setMaterial] = useState<(typeof MATERIALS)[number]["id"] | null>(null);
   const [busy, setBusy] = useState(false);
@@ -142,9 +139,9 @@ function NfcDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (v: bo
     try {
       const r = await join({ data: { material } });
       if (r.ok) setDone(true);
-      else toast.error("Opslaan mislukt, probeer later opnieuw");
+      else toast.error(t("profile.saveFailed"));
     } catch {
-      toast.error("Opslaan mislukt, probeer later opnieuw");
+      toast.error(t("profile.saveFailed"));
     } finally {
       setBusy(false);
     }
@@ -155,18 +152,15 @@ function NfcDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (v: bo
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Nfc className="h-5 w-5" aria-hidden /> NFC Visitekaartje
-          </DialogTitle>
+            <Nfc className="h-5 w-5" aria-hidden />  {t("profile.nfcCard")} </DialogTitle>
           <DialogDescription>
-            Binnenkort beschikbaar! Print je ROUT-profiel op een fysiek, contactloos NFC-visitekaartje (hout, metaal of
-            mat zwart). Zet jezelf op de wachtlijst.
-          </DialogDescription>
+             {t("profile.nfcComingSoon")} </DialogDescription>
         </DialogHeader>
         {done ? (
-          <p className="rounded-xl border border-border bg-muted/40 p-4 text-sm">Je staat op de wachtlijst. We laten het je weten zodra het kan.</p>
+          <p className="rounded-xl border border-border bg-muted/40 p-4 text-sm"> {t("profile.waitlisted")} </p>
         ) : (
           <div className="space-y-4">
-            <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Voorkeursmateriaal">
+            <div className="flex flex-wrap gap-2" role="radiogroup" aria-label={t("profile.preferredMaterial")}>
               {MATERIALS.map((m) => (
                 <button
                   key={m.id}
@@ -179,13 +173,12 @@ function NfcDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (v: bo
                     material === m.id ? "border-foreground bg-foreground text-background" : "border-border hover:bg-muted",
                   )}
                 >
-                  {m.label}
+                  {t(m.label)}
                 </button>
               ))}
             </div>
             <Button type="button" className="w-full" disabled={busy} onClick={() => void submit()}>
-              Zet mij op de wachtlijst
-            </Button>
+               {t("profile.joinWaitlist")} </Button>
           </div>
         )}
       </DialogContent>

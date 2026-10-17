@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useMemo, useState, type CSSProperties } from "react";
 import { FileText, Play } from "lucide-react";
 
@@ -10,6 +11,7 @@ import { resolveMediaEmbed } from "@/lib/media-embed-parser";
  * Vimeo) of een PDF-previewkaart. `style` volgt de knopstijl van het profiel.
  */
 export function MediaEmbedCard({ value, style }: { value: string; style?: CSSProperties }) {
+  const { t } = useTranslation();
   const config = useMemo(() => parseMediaEmbedConfig(value), [value]);
   const embed = useMemo(() => resolveMediaEmbed(config.url), [config.url]);
   /** Players laden pas na de eerste interactie (lazy + geen autoplay-verrassing). */
@@ -41,8 +43,7 @@ export function MediaEmbedCard({ value, style }: { value: string; style?: CSSPro
             rel="noopener noreferrer"
             className="shrink-0 rounded-full border border-border px-3 py-1.5 text-xs font-medium transition-opacity hover:opacity-80"
           >
-            📄 Bekijk / Download PDF
-          </a>
+             {t("profile.viewPdf")} </a>
         </div>
       </div>
     );
@@ -82,8 +83,7 @@ export function MediaEmbedCard({ value, style }: { value: string; style?: CSSPro
             <Play className="ml-0.5 h-5 w-5" aria-hidden />
           </span>
           <span className="text-xs font-medium opacity-70">
-            {embed.label} — tik om af te spelen
-          </span>
+            {embed.label}  {t("profile.tapToPlay")} </span>
         </button>
       )}
     </div>

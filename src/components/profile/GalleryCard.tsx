@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useState, type CSSProperties } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { galleryLinkHref, type GalleryConfig, type GalleryItem } from "@/lib/gallery";
@@ -53,6 +54,7 @@ function GalleryImage({
  * showcase met lightbox.
  */
 export function GalleryCard({ config, style }: { config: GalleryConfig; style: CSSProperties }) {
+  const { t } = useTranslation();
   const [lightbox, setLightbox] = useState<GalleryItem | null>(null);
   const [featured, setFeatured] = useState(0);
   const items = config.items;
@@ -123,7 +125,7 @@ export function GalleryCard({ config, style }: { config: GalleryConfig; style: C
                   key={item.id}
                   type="button"
                   onClick={() => setFeatured(index)}
-                  aria-label={item.alt || item.caption || `Foto ${index + 1}`}
+                  aria-label={item.alt || item.caption || t("profile.photoNumber", { number: index + 1 })}
                   className={cn(
                     "h-14 w-14 shrink-0 overflow-hidden rounded-lg transition-opacity",
                     index === featured ? "opacity-100 ring-2 ring-current" : "opacity-60",
@@ -145,7 +147,7 @@ export function GalleryCard({ config, style }: { config: GalleryConfig; style: C
       <Dialog open={lightbox !== null} onOpenChange={(open) => !open && setLightbox(null)}>
         <DialogContent className="max-w-3xl border-none bg-transparent p-0 shadow-none">
           <DialogTitle className="sr-only">
-            {lightbox?.caption || lightbox?.alt || "Foto"}
+            {lightbox?.caption || lightbox?.alt || t("profile.photo")}
           </DialogTitle>
           {lightbox && (
             <figure className="overflow-hidden rounded-2xl">

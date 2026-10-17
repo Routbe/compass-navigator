@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { PresenceIcon } from "@/lib/presence-icons";
 import type { PresenceIndicator } from "@/lib/status-bubble";
 import { useEffect, useState, type ReactNode } from "react";
@@ -173,6 +174,7 @@ export function AvatarFrameWrapper({
   indicator?: PresenceIndicator;
   emoji?: string | null;
 }) {
+  const { t } = useTranslation();
   const def = avatarFrameDef(frame);
   // SSR rendert altijd het volledige kader; na hydratatie schakelen trage
   // toestellen (weinig cores/RAM, databesparing, verminderde beweging) over op
@@ -195,7 +197,7 @@ export function AvatarFrameWrapper({
       {indicator === "emoji" && emoji ? (
         <span
           title={status.label}
-          aria-label={status.label === "Verborgen" ? "Status" : status.label}
+          aria-label={status.label === "Verborgen" ? t("profile.statusLabel") : status.label}
           className="absolute bottom-0 right-0 flex h-[32%] w-[32%] min-h-5 min-w-5 items-center justify-center rounded-full leading-none [container-type:size]"
           style={{ background: theme.card, boxShadow: `0 0 0 3px ${theme.bg}` }}
         >

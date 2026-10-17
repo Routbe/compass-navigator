@@ -1,6 +1,6 @@
+import { useTranslation } from "react-i18next";
 import { HumanLinkedIcon } from "@/components/profile/HumanLinkedIcon";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { BADGE_HUMAN_BODY } from "@/lib/profile-display";
 
 /**
  * Privacy-schild badge voor alias-profielen (`rout.be/u/[alias]`).
@@ -11,7 +11,8 @@ import { BADGE_HUMAN_BODY } from "@/lib/profile-display";
  * is uitsluitend voorbehouden aan het geverifieerde hoofdprofiel (`/handle`).
  */
 export function PrivacyShieldBadge({ size = "sm" }: { size?: "sm" | "md" }) {
-  const title = "Gekoppeld aan een geverifieerd account";
+  const { t } = useTranslation();
+  const title = t("badges.linkedAccount");
   const iconClass = size === "md" ? "h-6 w-6" : "h-5 w-5";
 
   return (
@@ -34,7 +35,7 @@ export function PrivacyShieldBadge({ size = "sm" }: { size?: "sm" | "md" }) {
           <HumanLinkedIcon className="mt-0.5 h-5 w-5 shrink-0 text-zinc-200" aria-hidden />
           <div className="space-y-1.5">
             <p className="text-sm font-bold leading-tight text-zinc-100">{title}</p>
-            <p>{BADGE_HUMAN_BODY}</p>
+            <p>{t("badges.humanExplanation")}</p>
           </div>
         </div>
       </PopoverContent>
